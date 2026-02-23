@@ -162,8 +162,10 @@ export function SideNavBar({ isOpen, onClose, initialTab = 'profile' }: SideNavB
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className={cn(
-              "fixed top-0 right-0 bottom-0 w-full max-w-md bg-surface z-[101] flex flex-col border-l border-white/5 shadow-2xl overflow-hidden",
-              isSoloLevelingMode && "rounded-none"
+              "fixed top-0 right-0 bottom-0 w-full max-w-md z-[101] flex flex-col shadow-2xl overflow-hidden",
+              isSoloLevelingMode 
+                ? "bg-background/60 backdrop-blur-2xl border-l-[0.5px] border-primary/20" 
+                : "bg-surface border-l border-white/5"
             )}
           >
             {/* Solo Mode Assets */}

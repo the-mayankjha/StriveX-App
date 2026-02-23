@@ -183,7 +183,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                 className="w-full overflow-visible"
               >
                 <div 
-                  className="p-4 pt-10 sm:p-6 sm:pt-12 relative max-h-[85vh] overflow-y-auto no-scrollbar bg-surface/95 backdrop-blur-md"
+                  className="p-4 pt-10 sm:p-6 sm:pt-12 relative max-h-[85vh] overflow-y-auto no-scrollbar bg-background/60 backdrop-blur-2xl"
                   style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)' }}
                 >
                    {/* Scanline Effect */}
