@@ -16,11 +16,10 @@ interface ProfilePopupProps {
 function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextLevelXp, radarData, statItems }: any) {
   return (
     <>
-      {/* Avatar Section */}
-      <div className="relative mb-3 flex justify-center">
+      <div className="relative mb-3 flex justify-center pt-4">
         {/* Level Tag (Solo Mode Specific) - Positioned ABOVE avatar */}
         {isSoloLevelingMode && (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30 w-max">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 w-max">
             <div 
               className="bg-surfaceHighlight border border-primary/60 px-3 py-0.5 shadow-glow-blue/40 flex items-center justify-center min-w-[60px]"
               style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 20%)' }}
@@ -127,7 +126,7 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
       {/* Footer */}
       <div className="mt-4 pt-4 border-t border-primary/10 w-full text-center">
          <p className="text-[8px] font-black uppercase text-primary/30 tracking-[0.455em]">
-           System Registered Since 2024
+           StriveX System v1.0.0 
          </p>
       </div>
     </>
@@ -180,7 +179,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                 className="w-full overflow-visible"
               >
                 <div 
-                  className="p-8 relative max-h-[85vh] overflow-y-auto no-scrollbar bg-surface/95 backdrop-blur-md"
+                  className="p-8 pt-12 relative max-h-[85vh] overflow-y-auto no-scrollbar bg-surface/95 backdrop-blur-md"
                   style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)' }}
                 >
                    {/* Scanline Effect */}
@@ -192,7 +191,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
 
                   <div className="relative z-20 flex flex-col items-center">
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-4 py-1.5 text-[8px] font-black uppercase tracking-[0.4em] border border-primary/40 text-primary bg-background/80 backdrop-blur-sm z-30">
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-4 py-1.5 text-[8px] font-black uppercase tracking-[0.4em] border border-primary/40 text-primary bg-background/80 backdrop-blur-sm z-30">
                       System Stats
                     </div>
 
