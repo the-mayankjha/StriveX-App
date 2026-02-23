@@ -1,7 +1,7 @@
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 
-import { type PlayerStats, addXpToStats } from '../utils/leveling';
+import { type PlayerStats, addXpToStats, calculateExerciseXp } from '../utils/leveling';
 
 export interface QuestExercise {
   id: string;
@@ -25,6 +25,7 @@ export type ExerciseStatus = 'pending' | 'completed' | 'skipped';
 export interface DailyProgress {
   date: string; // YYYY-MM-DD
   statuses: Record<string, ExerciseStatus>; // exerciseId -> status
+  actualPerformance?: Record<string, { sets: number; reps: number }>; // exerciseId -> performance
   rewardsClaimed: boolean;
 }
 
@@ -53,12 +54,15 @@ export function useWorkout() {
     rewardsClaimed: false
   });
 
+  const [celebration, setCelebration] = useState<{ type: 'level-up' | 'quest-complete' | null; data?: any }>({ type: null });
+
   // Reset progress if date changes
   const todayDate = new Date().toISOString().split('T')[0];
   if (dailyProgress.date !== todayDate) {
     setDailyProgress({
       date: todayDate,
       statuses: {},
+      actualPerformance: {},
       rewardsClaimed: false
     });
   }
@@ -67,32 +71,85 @@ export function useWorkout() {
     setWeeklyQuest(prev => ({ ...prev, [day]: quest }));
   }, [setWeeklyQuest]);
 
+  const updateTodayExercise = useCallback((exerciseId: string, updates: Partial<QuestExercise>) => {
+    const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = DAYS[new Date().getDay()];
+    
+    setWeeklyQuest(prev => {
+      const todayQuest = prev[today];
+      if (!todayQuest) return prev;
+      
+      const newExercises = todayQuest.exercises.map(ex => 
+        ex.id === exerciseId ? { ...ex, ...updates } : ex
+      );
+      
+      return {
+        ...prev,
+        [today]: { ...todayQuest, exercises: newExercises }
+      };
+    });
+  }, [setWeeklyQuest]);
+
+  const setActualPerformance = useCallback((exerciseId: string, performance: { sets: number; reps: number }) => {
+    setDailyProgress(prev => ({
+      ...prev,
+      actualPerformance: {
+        ...(prev.actualPerformance || {}),
+        [exerciseId]: performance
+      }
+    }));
+  }, [setDailyProgress]);
+
   const setExerciseStatus = useCallback((exerciseId: string, status: ExerciseStatus) => {
     setDailyProgress(prev => {
-      const newStatuses = {
-        ...prev.statuses,
-        [exerciseId]: status
-      };
+      const newStatuses = { ...prev.statuses, [exerciseId]: status };
       
       let newRewardsClaimed = prev.rewardsClaimed;
+      let extraXp = 0;
+      
+      // Award XP when an exercise is marked as 'completed'
+      if (status === 'completed' && prev.statuses[exerciseId] !== 'completed') {
+        const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const today = DAYS[new Date().getDay()];
+        const todayQuest = weeklyQuest[today];
+        const exercise = todayQuest?.exercises.find(e => e.id === exerciseId);
+        
+        if (exercise) {
+          const actual = prev.actualPerformance?.[exerciseId] || { sets: exercise.sets, reps: exercise.reps };
+          extraXp = calculateExerciseXp({ sets: exercise.sets, reps: exercise.reps }, actual);
+        }
+      }
+      
+      // Update Player Stats if XP gained
+      if (extraXp > 0) {
+        setPlayerStats(stats => {
+          const { newStats, leveledUp, levelsGained } = addXpToStats(stats, extraXp);
+          if (leveledUp) {
+            setCelebration({ type: 'level-up', data: { level: newStats.level, levelsGained } });
+          }
+          return newStats;
+        });
+      }
       
       // Check if all exercises for today are done (completed)
       const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const today = DAYS[new Date().getDay()];
       const todayQuest = weeklyQuest[today];
       
-      if (todayQuest && todayQuest.exercises.length > 0 && !prev.rewardsClaimed) {
+      if (todayQuest && todayQuest.exercises.length > 0 && !newRewardsClaimed) {
         const allDone = todayQuest.exercises.every(ex => newStatuses[ex.id] === 'completed');
         
         if (allDone) {
           newRewardsClaimed = true;
-          
-          // Award XP and Streak
-          const xpGained = 200;
-          const { newStats } = addXpToStats(playerStats, xpGained);
-          setPlayerStats({
-            ...newStats,
-            streak: playerStats.streak + 1
+          setPlayerStats(stats => {
+            const { newStats, leveledUp, levelsGained } = addXpToStats(stats, 100);
+            if (!leveledUp) {
+               // Only trigger quest-complete if we didn't just level up (avoid double popups)
+               setCelebration({ type: 'quest-complete' });
+            } else {
+               setCelebration({ type: 'level-up', data: { level: newStats.level, levelsGained } });
+            }
+            return { ...newStats, streak: stats.streak + 1 };
           });
         }
       }
@@ -103,14 +160,32 @@ export function useWorkout() {
         rewardsClaimed: newRewardsClaimed
       };
     });
-  }, [setDailyProgress, weeklyQuest, playerStats, setPlayerStats]);
+  }, [setDailyProgress, weeklyQuest, setPlayerStats]);
+
+  const clearCelebration = useCallback(() => setCelebration({ type: null }), []);
+
+  const [hasSeenQuestInfo, setHasSeenQuestInfo] = useLocalStorage<string | null>('strivex_last_quest_info_date', null);
+  const [isSoloLevelingMode, setIsSoloLevelingMode] = useLocalStorage<boolean>('strivex_solo_leveling_mode', true);
+  
+  const isQuestInfoVisible = isSoloLevelingMode && hasSeenQuestInfo !== todayDate;
+  const markQuestInfoAsSeen = useCallback(() => setHasSeenQuestInfo(todayDate), [todayDate, setHasSeenQuestInfo]);
 
   return {
     playerStats,
     history,
     weeklyQuest,
     updateDailyQuest,
+    updateTodayExercise,
+    setActualPerformance,
     dailyProgress,
-    setExerciseStatus
+    setExerciseStatus,
+    celebration,
+    clearCelebration,
+    isQuestInfoVisible,
+    markQuestInfoAsSeen,
+    isSoloLevelingMode,
+    setIsSoloLevelingMode
   };
 }
+
+

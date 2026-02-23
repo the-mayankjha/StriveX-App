@@ -4,29 +4,32 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0F1115', // Dark slate background
-        surface: '#181B21', // Slightly lighter card bg
-        surfaceHighlight: '#232730', 
-        primary: '#3B82F6', // Modern Blue
-        secondary: '#64748B', // Slate
-        accent: '#EF4444', // Red
+        background: '#0F1115', // Deeper Grey-Blue
+        surface: '#12141C', // Lighter Grey-Blue for surfaces
+        surfaceHighlight: '#1A1D26', 
+        primary: '#3B82F6', // Original Blue
+        secondary: '#64748B', 
+        accent: '#EF4444', 
         text: {
-          DEFAULT: '#F8FAFC', // Slate 50
-          muted: '#94A3B8', // Slate 400
+          DEFAULT: '#E2E8F0', // Slightly softer white
+          muted: '#64748B', 
         },
         system: {
-          success: '#10B981',
+          success: '#3B82F6', 
           warning: '#F59E0B',
         }
       },
+
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        system: ['Inter', 'sans-serif'], // Reverting to Inter for clean look
+        system: ['Inter', 'sans-serif'],
       },
       boxShadow: {
-        "glow-blue": "0 0 10px rgba(0, 243, 255, 0.5)",
-        "glow-red": "0 0 10px rgba(255, 0, 60, 0.5)",
+        "glow-blue": "0 0 15px rgba(59, 130, 246, 0.4)",
+        "glow-cyan": "0 0 20px rgba(59, 130, 246, 0.6)",
+        "glow-red": "0 0 15px rgba(255, 0, 60, 0.4)",
       },
+
     },
   },
   plugins: [],

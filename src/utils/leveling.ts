@@ -34,7 +34,27 @@ export const INITIAL_STATS: PlayerStats = {
 };
 
 export function getXpRequiredForLevel(level: number): number {
+  // Level 1: 100 XP (10 standard exercises)
+  // Level 2: 200 XP
+  // Level 3: 300 XP
+  // Proper increment: each level requires more effort than the last
   return level * 100;
+}
+
+/**
+ * Calculates XP for a single exercise completion
+ * Base: 10 XP
+ * Bonus: +5 XP per extra set, +2 XP per extra rep
+ */
+export function calculateExerciseXp(planned: { sets: number, reps: number }, actual: { sets: number, reps: number }): number {
+  const baseXP = 10;
+  
+  const extraSets = Math.max(0, actual.sets - planned.sets);
+  const extraReps = Math.max(0, actual.reps - planned.reps);
+  
+  const bonusXP = (extraSets * 5) + (extraReps * 2);
+  
+  return baseXP + bonusXP;
 }
 
 export function calculateRank(level: number): Rank {
@@ -47,27 +67,36 @@ export function calculateRank(level: number): Rank {
 }
 
 export function addXpToStats(stats: PlayerStats, xpGained: number): { newStats: PlayerStats; leveledUp: boolean; levelsGained: number } {
-  let { level, currentXp } = stats;
+  let { level, currentXp, strength, agility, vitality, perception, intelligence } = stats;
   let leveledUp = false;
   let levelsGained = 0;
   
-  currentXp += xpGained;
+  currentXp += Math.round(xpGained);
   
-  let xpRequired = getXpRequiredForLevel(level);
-  
-  while (currentXp >= xpRequired) {
-    currentXp -= xpRequired;
+  while (currentXp >= getXpRequiredForLevel(level)) {
+    currentXp -= getXpRequiredForLevel(level);
     level++;
     levelsGained++;
-    xpRequired = getXpRequiredForLevel(level);
     leveledUp = true;
+    
+    // Increment base stats per level gained
+    strength += 2;
+    agility += 2;
+    vitality += 2;
+    perception += 2;
+    intelligence += 2;
   }
   
   return {
     newStats: {
       ...stats,
       level,
-      currentXp
+      currentXp,
+      strength,
+      agility,
+      vitality,
+      perception,
+      intelligence
     },
     leveledUp,
     levelsGained
