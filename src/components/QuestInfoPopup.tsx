@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Clock } from 'lucide-react';
+import ElectricBorder from './effects/ElectricBorder';
 
 
 interface QuestInfoPopupProps {
@@ -20,35 +21,25 @@ export function QuestInfoPopup({ isOpen, onClose, questData }: QuestInfoPopupPro
             initial={{ scale: 0.9, opacity: 0, y: 50 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 50 }}
-            className="w-full max-w-[340px] bg-[#0A0C12]/95 border-2 border-primary/40 shadow-glow-blue relative overflow-hidden"
-            style={{
-              clipPath: 'polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%)'
-            }}
+            className="w-full max-w-[340px] relative"
           >
-            {/* Border Lighting Trace */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-20" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <path
-                d="M 0,0 L 100,0 L 100,92 L 92,100 L 0,100 Z"
-                fill="none"
-                stroke="url(#beam-gradient)"
-                strokeWidth="0.5"
-                className="animate-border-beam"
-                strokeDashoffset="0"
-                strokeDasharray="40 160"
-              />
-              <defs>
-                <linearGradient id="beam-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="transparent" />
-                  <stop offset="50%" stopColor="#3B82F6" stopOpacity="1" />
-                  <stop offset="100%" stopColor="transparent" />
-                </linearGradient>
-              </defs>
-            </svg>
-
-            {/* Scanline Effect */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-10">
-              <div className="w-full h-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] animate-scanline" />
-            </div>
+            <ElectricBorder
+              color="#3B82F6"
+              speed={1.5}
+              chaos={0.15}
+              borderRadius={4}
+              className="w-full h-full"
+            >
+              <div 
+                className="bg-[#0A0C12]/95 backdrop-blur-md relative overflow-hidden"
+                style={{
+                  clipPath: 'polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%)'
+                }}
+              >
+                {/* Scanline Effect */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-10">
+                  <div className="w-full h-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] animate-scanline" />
+                </div>
 
             <div className="relative z-10 p-6 space-y-6">
               {/* Header */}
@@ -65,7 +56,9 @@ export function QuestInfoPopup({ isOpen, onClose, questData }: QuestInfoPopupPro
                   Daily Quest
                 </h3>
                 <p className="text-sm font-bold text-white uppercase tracking-tight">
-                  Train to become a formidable combatant
+                  {questData.category !== 'rest' 
+                    ? `TRAIN TO BECOME A FORMIDABLE COMBATANT`
+                    : "REST & RECOVERY ACTIVE"}
                 </p>
               </div>
 
@@ -113,13 +106,15 @@ export function QuestInfoPopup({ isOpen, onClose, questData }: QuestInfoPopupPro
                 Accept
               </button>
             </div>
+          </div>
 
-            {/* Corner Accents */}
-            <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-primary/60" />
-            <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-primary/60" />
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+          {/* Corner Accents */}
+          <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-primary/60" />
+          <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-primary/60" />
+        </ElectricBorder>
+      </motion.div>
+    </div>
+  )}
+</AnimatePresence>
   );
 }

@@ -164,11 +164,11 @@ export function useWorkout() {
 
   const clearCelebration = useCallback(() => setCelebration({ type: null }), []);
 
-  const [hasSeenQuestInfo, setHasSeenQuestInfo] = useLocalStorage<string | null>('strivex_last_quest_info_date', null);
+  const [hasSeenQuestInfo, setHasSeenQuestInfo] = useState<boolean>(false);
   const [isSoloLevelingMode, setIsSoloLevelingMode] = useLocalStorage<boolean>('strivex_solo_leveling_mode', true);
   
-  const isQuestInfoVisible = isSoloLevelingMode && hasSeenQuestInfo !== todayDate;
-  const markQuestInfoAsSeen = useCallback(() => setHasSeenQuestInfo(todayDate), [todayDate, setHasSeenQuestInfo]);
+  const isQuestInfoVisible = isSoloLevelingMode && !hasSeenQuestInfo;
+  const markQuestInfoAsSeen = useCallback(() => setHasSeenQuestInfo(true), [setHasSeenQuestInfo]);
 
   const [isSliderOpen, setIsSliderOpen] = useState(false);
   const [sliderTab, setSliderTab] = useState<'profile' | 'quest' | 'bank'>('profile');
