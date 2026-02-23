@@ -124,9 +124,10 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
       </div>
 
       {/* Footer */}
-      <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-primary/10 w-full text-center">
-         <p className="text-[7px] sm:text-[8px] font-black uppercase text-primary/30 tracking-[0.455em]">
-           StriveX System v1.0.0 
+      <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-primary/10 w-full text-center pb-2">
+         <p className="text-[7px] sm:text-[8px] font-black uppercase text-text-muted/50 tracking-[0.2em]">
+           <span className="text-primary/50 tracking-[0.455em]">StriveX System v1.0.0</span><br/>
+           Build by Mayank Jha
          </p>
       </div>
     </>
@@ -207,9 +208,9 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                         audio.play().catch(err => console.log('Audio play blocked:', err));
                         onClose();
                       }}
-                      className="absolute top-0 right-0 p-2 rounded-full text-text-muted hover:text-white transition-colors"
+                      className="absolute top-4 right-4 p-2 rounded-full text-text-muted hover:text-white transition-colors z-50"
                     >
-                      <X size={20} />
+                      <X size={24} />
                     </button>
 
                     <ProfileContent 

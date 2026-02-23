@@ -109,7 +109,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
                       <span className="text-sm font-black">!</span>
                     </div>
                     
-                    <h2 className="text-xl font-black uppercase tracking-[0.4em] text-hologram italic">
+                    <h2 className="text-lg sm:text-xl font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-hologram italic">
                       NOTIFICATION
                     </h2>
                     
@@ -128,7 +128,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
 
               <div className="space-y-4 sm:space-y-6 text-center pt-4">
                 <h2 className={cn(
-                  "text-2xl sm:text-3xl font-black uppercase tracking-tight text-primary transition-all duration-300",
+                  "text-xl sm:text-3xl font-black uppercase tracking-tight text-primary transition-all duration-300",
                   isSoloLevelingMode && "text-hologram"
                 )}>
                   {type === 'level-up' ? "YOU LEVELED UP!" : "QUEST COMPLETED!"}
@@ -136,7 +136,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
                 
                 {isSoloLevelingMode && <div className="h-[2px] w-1/3 mx-auto bg-primary opacity-50" />}
 
-                <p className="text-text-muted font-bold text-sm tracking-widest leading-relaxed uppercase">
+                <p className="text-text-muted font-bold text-xs sm:text-sm tracking-widest leading-relaxed uppercase">
                   {type === 'level-up' 
                     ? `SYSTEM: LEVEL ${data?.level || 1} REACHED.`
                     : "DAILY OBJECTIVES ACHIEVED."}
@@ -176,14 +176,19 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
                       }}
                       transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.4 }}
                     >
-                      <Star className="text-primary" size={24} />
+                      <Star className="text-primary w-5 h-5 sm:w-6 sm:h-6" />
                     </motion.div>
                   ))}
                 </div>
               )}
 
                 <button
-                  onClick={onClose}
+                  onClick={() => {
+                    const audio = new Audio('/assets/audio/click.wav');
+                    audio.volume = 0.5;
+                    audio.play().catch(err => console.log('Audio play blocked:', err));
+                    setTimeout(() => onClose(), 150);
+                  }}
                   className={cn(
                     "w-full py-4 sm:py-5 font-black uppercase tracking-[0.4em] transition-all active:scale-[0.98] border-2 relative group overflow-hidden",
                     isSoloLevelingMode 
