@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Sword, Dumbbell, Zap, Shield, Target, Brain, Activity, Flame, Settings, Search, SlidersHorizontal, Plus, Minus, Trash2, Loader2, Moon } from 'lucide-react';
+import { X, User, Sword, Dumbbell, Zap, Shield, Target, Brain, Activity, Flame, Settings, Search, SlidersHorizontal, Plus, Trash2, Loader2, Moon } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useWorkout, type QuestExercise } from '../hooks/useWorkout';
 import { RadarChart } from './RadarChart';

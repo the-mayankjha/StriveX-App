@@ -11,7 +11,7 @@ import {
 import { Card } from '../components/Card';
 import { useWorkout, type QuestExercise, type ExerciseStatus } from '../hooks/useWorkout';
 import { cn } from '../utils/cn';
-import { useNavigate, Link } from 'react-router-dom';
+
 import { ExerciseInfoSheet } from '../components/ExerciseInfoSheet';
 import { CelebrationPopup } from '../components/CelebrationPopup';
 import { QuestInfoPopup } from '../components/QuestInfoPopup';
@@ -33,7 +33,7 @@ export function Dashboard() {
     openSlider
   } = useWorkout();
 
-  const navigate = useNavigate();
+
   const [selectedExercise, setSelectedExercise] = useState<QuestExercise | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

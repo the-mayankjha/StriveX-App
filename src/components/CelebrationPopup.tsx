@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Trophy, Star, Zap } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useWorkout } from '../hooks/useWorkout';
 
