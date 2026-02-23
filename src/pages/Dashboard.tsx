@@ -348,56 +348,52 @@ function WorkoutItem({ ex, status, actual, category, setExerciseStatus, onLongPr
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center justify-between pt-4 mt-2 border-t border-white/5"
+                className="flex items-center justify-between pt-3 mt-2 border-t border-white/5 w-full"
               >
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black uppercase text-text-muted">Sets:</span>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => setActualPerformance(ex.id, { sets: Math.max(1, currentSets - 1), reps: currentReps })}
-                        className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-white"
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span className="text-sm font-bold text-white w-4 text-center">{currentSets}</span>
-                      <button 
-                        onClick={() => setActualPerformance(ex.id, { sets: currentSets + 1, reps: currentReps })}
-                        className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-white"
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
+                <div className="flex items-center justify-start gap-1 sm:gap-4 flex-1 overflow-x-auto no-scrollbar pr-2">
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[8px] font-black uppercase text-text-muted tracking-widest">Sets:</span>
+                    <button 
+                      onClick={() => setActualPerformance(ex.id, { sets: Math.max(1, currentSets - 1), reps: currentReps })}
+                      className="w-6 h-6 rounded-md bg-surfaceHighlight border border-white/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                    >
+                      <Minus size={10} strokeWidth={3} />
+                    </button>
+                    <span className="text-xs font-bold text-white w-3 text-center tabular-nums">{currentSets}</span>
+                    <button 
+                      onClick={() => setActualPerformance(ex.id, { sets: currentSets + 1, reps: currentReps })}
+                      className="w-6 h-6 rounded-md bg-surfaceHighlight border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+                    >
+                      <Plus size={10} strokeWidth={3} />
+                    </button>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black uppercase text-text-muted">Reps:</span>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => setActualPerformance(ex.id, { sets: currentSets, reps: Math.max(1, currentReps - 1) })}
-                        className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-white"
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span className="text-sm font-bold text-white w-6 text-center">{currentReps}</span>
-                      <button 
-                        onClick={() => setActualPerformance(ex.id, { sets: currentSets, reps: currentReps + 1 })}
-                        className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-white"
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
+                  <div className="flex items-center gap-1.5 shrink-0 ml-1 sm:ml-0">
+                    <span className="text-[8px] font-black uppercase text-text-muted tracking-widest">Reps:</span>
+                    <button 
+                      onClick={() => setActualPerformance(ex.id, { sets: currentSets, reps: Math.max(1, currentReps - 1) })}
+                      className="w-6 h-6 rounded-md bg-surfaceHighlight border border-white/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                    >
+                      <Minus size={10} strokeWidth={3} />
+                    </button>
+                    <span className="text-xs font-bold text-white w-4 text-center tabular-nums">{currentReps}</span>
+                    <button 
+                      onClick={() => setActualPerformance(ex.id, { sets: currentSets, reps: currentReps + 1 })}
+                      className="w-6 h-6 rounded-md bg-surfaceHighlight border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+                    >
+                      <Plus size={10} strokeWidth={3} />
+                    </button>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="text-[8px] font-black uppercase text-gray-500">Value</div>
-                    <div className="text-[10px] font-black text-yellow-500">{xpPotential} XP</div>
+                <div className="flex items-center gap-2 shrink-0 ml-auto border-l border-white/5 pl-2">
+                  <div className="text-right flex flex-col justify-center">
+                    <span className="text-[7px] font-black uppercase text-gray-500 leading-none mb-[2px]">Value</span>
+                    <span className="text-[9px] font-black text-yellow-500 leading-none">{xpPotential} XP</span>
                   </div>
                   <button 
                     onClick={onDoubleTap}
-                    className="px-3 py-1 rounded-lg bg-primary/20 text-primary text-[10px] font-black uppercase tracking-wider"
+                    className="px-2.5 h-6 rounded-md bg-primary/20 text-primary text-[9px] font-black uppercase tracking-wider hover:bg-primary hover:text-white transition-colors flex items-center justify-center"
                   >
                     Done
                   </button>

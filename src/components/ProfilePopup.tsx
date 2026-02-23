@@ -30,7 +30,7 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
         )}
 
         <div className={cn(
-          "w-24 h-24 p-0.5 relative group",
+          "w-16 h-16 sm:w-20 sm:h-20 p-0.5 relative group",
           isSoloLevelingMode 
             ? "bg-primary/30 border border-primary/50 shadow-glow-blue/20" 
             : "rounded-full bg-gradient-to-tr from-primary via-purple-500 to-red-500"
@@ -62,9 +62,9 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
       </div>
 
       {/* Rank Section */}
-      <div className="text-center mb-3">
+      <div className="text-center mb-1.5 sm:mb-3">
         <h2 className={cn(
-          "text-xl font-black uppercase tracking-[0.2em] italic mb-0.5",
+          "text-lg sm:text-xl font-black uppercase tracking-[0.2em] italic mb-0.5",
           rankInfo.color,
           isSoloLevelingMode && "text-hologram animate-pulse-slow font-inter"
         )}>
@@ -76,10 +76,10 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
       </div>
 
       {/* XP Progress Bar */}
-      <div className="w-full space-y-2 mb-3 px-6">
+      <div className="w-full space-y-1.5 sm:space-y-2 mb-1.5 sm:mb-3 px-4 sm:px-6">
         <div className="flex justify-between items-end">
-          <span className="text-[9px] font-black uppercase text-text-muted tracking-widest opacity-60">Progress to Level {stats.level + 1}</span>
-          <span className="text-[9px] font-black text-primary italic tracking-tight">{Math.round(stats.currentXp)} <span className="text-text-muted font-bold">/</span> {nextLevelXp} XP</span>
+          <span className="text-[8px] sm:text-[9px] font-black uppercase text-text-muted tracking-widest opacity-60">Progress to Level {stats.level + 1}</span>
+          <span className="text-[8px] sm:text-[9px] font-black text-primary italic tracking-tight">{Math.round(stats.currentXp)} <span className="text-text-muted font-bold">/</span> {nextLevelXp} XP</span>
         </div>
         <div className={cn(
           "h-1 overflow-hidden p-0",
@@ -103,10 +103,10 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
       </div>
 
       {/* Stats Grid */}
-      <div className="w-full grid grid-cols-3 gap-1 px-3">
+      <div className="w-full grid grid-cols-3 gap-0.5 sm:gap-1 px-1 sm:px-3">
         {statItems.map((item: any) => (
           <div key={item.label} className={cn(
-            "p-1.5 py-2 flex flex-col items-center justify-center border transition-all group relative",
+            "p-1 sm:p-1.5 py-1 sm:py-2 flex flex-col items-center justify-center border transition-all group relative",
             isSoloLevelingMode 
               ? "bg-primary/5 border-primary/10 hover:bg-primary/10 hover:border-primary/30 rounded-none shadow-[inset_0_0_10px_rgba(59,130,246,0.05)]" 
               : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20 rounded-2xl"
@@ -116,16 +116,16 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
                <div className="absolute top-0 right-0 w-1 h-1 bg-primary/30" />
             )}
             
-            <item.icon className={cn(item.color, "transition-transform group-hover:scale-110 mb-1 opacity-80")} size={isSoloLevelingMode ? 18 : 16} />
-            <span className={cn("text-xs font-black tracking-widest", isSoloLevelingMode ? "text-primary/90" : "text-white")}>{item.value}</span>
-            <span className="text-[7px] font-black uppercase text-text-muted tracking-widest opacity-50">{item.label}</span>
+            <item.icon className={cn(item.color, "transition-transform group-hover:scale-110 mb-0.5 sm:mb-1 opacity-80")} size={isSoloLevelingMode ? 16 : 14} />
+            <span className={cn("text-[10px] sm:text-xs font-black tracking-widest", isSoloLevelingMode ? "text-primary/90" : "text-white")}>{item.value}</span>
+            <span className="text-[6px] sm:text-[7px] font-black uppercase text-text-muted tracking-widest opacity-50">{item.label}</span>
           </div>
         ))}
       </div>
 
       {/* Footer */}
-      <div className="mt-4 pt-4 border-t border-primary/10 w-full text-center">
-         <p className="text-[8px] font-black uppercase text-primary/30 tracking-[0.455em]">
+      <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-primary/10 w-full text-center">
+         <p className="text-[7px] sm:text-[8px] font-black uppercase text-primary/30 tracking-[0.455em]">
            StriveX System v1.0.0 
          </p>
       </div>
@@ -160,14 +160,18 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-background/90 backdrop-blur-md">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-background/90 backdrop-blur-md"
+          onClick={onClose}
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
             className={cn(
               "w-full max-w-sm relative transition-all duration-500",
-              isSoloLevelingMode ? "rounded-none" : "bg-surface border-2 border-white/10 shadow-2xl rounded-[2.5rem] p-8"
+              isSoloLevelingMode ? "rounded-none" : "bg-surface border-2 border-white/10 shadow-2xl rounded-[2.5rem] p-6 sm:p-8"
             )}
           >
             {isSoloLevelingMode ? (
@@ -179,7 +183,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                 className="w-full overflow-visible"
               >
                 <div 
-                  className="p-8 pt-12 relative max-h-[85vh] overflow-y-auto no-scrollbar bg-surface/95 backdrop-blur-md"
+                  className="p-4 pt-10 sm:p-6 sm:pt-12 relative max-h-[85vh] overflow-y-auto no-scrollbar bg-surface/95 backdrop-blur-md"
                   style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)' }}
                 >
                    {/* Scanline Effect */}

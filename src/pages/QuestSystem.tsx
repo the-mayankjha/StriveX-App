@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
-import { Minus, Plus, Dumbbell, Moon, Droplets, Trash2 } from 'lucide-react';
+import { Minus, Plus, Dumbbell, Moon, Droplets, Trash2, Zap } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useWorkout, type QuestExercise } from '../hooks/useWorkout';
 import { BottomSheet } from '../components/BottomSheet';
 import { exerciseService, type ExerciseDBItem } from '../services/exerciseService';
 import { Search, Loader2, SlidersHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SaveNotificationPopup } from '../components/SaveNotificationPopup';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const CATEGORIES = [
@@ -31,6 +32,8 @@ export function QuestSystem() {
   const [searchQuery, setSearchQuery] = useState('');
   const [apiExercises, setApiExercises] = useState<ExerciseDBItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSavePopupOpen, setIsSavePopupOpen] = useState(false);
 
   // Sync with weeklyQuest when activeDay changes
   useEffect(() => {
@@ -95,10 +98,18 @@ export function QuestSystem() {
   };
 
   const handleSave = () => {
-    updateDailyQuest(activeDay, {
-      category: selectedCategory,
-      exercises
-    });
+    if (isSaving) return;
+    
+    setIsSaving(true);
+    setIsSavePopupOpen(true);
+
+    setTimeout(() => {
+      updateDailyQuest(activeDay, {
+        category: selectedCategory,
+        exercises
+      });
+      setIsSaving(false);
+    }, 1500);
   };
 
   return (
@@ -210,9 +221,9 @@ export function QuestSystem() {
                   }}
                   className="relative z-10"
                 >
-                  <Card className="p-4 bg-surface border-white/5 flex flex-col gap-5 active:cursor-grabbing">
-                    <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl bg-surfaceHighlight overflow-hidden flex items-center justify-center text-primary relative">
+                  <Card className="p-3 sm:p-4 bg-surface border-white/5 flex flex-col gap-4 active:cursor-grabbing">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="w-14 h-14 sm:w-20 sm:h-20 shrink-0 rounded-xl sm:rounded-2xl bg-surfaceHighlight overflow-hidden flex items-center justify-center text-primary relative">
                          {/* Border Lighting Trace */}
                         <div className="absolute inset-0 border border-primary/20 rounded-2xl" />
                         {ex.gifUrl ? (
@@ -221,8 +232,8 @@ export function QuestSystem() {
                           <Dumbbell size={24} />
                         )}
                       </div>
-                      <div className="flex-1 min-w-0 pt-1">
-                        <h4 className="font-black text-white text-base sm:text-lg leading-tight line-clamp-2 uppercase italic tracking-tighter">{ex.name}</h4>
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <h4 className="font-black text-white text-sm sm:text-lg leading-tight line-clamp-1 sm:line-clamp-2 uppercase italic tracking-tighter">{ex.name}</h4>
                         <div className="flex flex-wrap gap-x-2 gap-y-1 mt-1.5 px-0.5">
                           <span className="text-[10px] text-primary font-black uppercase tracking-widest bg-primary/10 px-1.5 rounded">
                             {ex.target}
@@ -234,45 +245,45 @@ export function QuestSystem() {
                       </div>
                     </div>
                     
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-4 pt-1 sm:pt-0 border-t border-white/5 pt-4">
-                      <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Sets</span>
-                        <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-text-muted">Sets</span>
+                        <div className="flex items-center gap-1.5">
                           <button 
                             onClick={() => updateExercise(ex.id, 'sets', -1)}
-                            className="w-8 h-8 rounded-xl bg-surfaceHighlight border border-white/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-surfaceHighlight border border-white/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                           >
-                            <Minus size={14} strokeWidth={3} />
+                            <Minus size={12} strokeWidth={3} />
                           </button>
-                          <span className="w-6 text-center font-black text-white tabular-nums text-sm">
+                          <span className="w-4 sm:w-6 text-center font-black text-white tabular-nums text-xs sm:text-sm">
                             {ex.sets.toString().padStart(2, '0')}
                           </span>
                           <button 
                             onClick={() => updateExercise(ex.id, 'sets', 1)}
-                            className="w-8 h-8 rounded-xl bg-surfaceHighlight border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-surfaceHighlight border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
                           >
-                            <Plus size={14} strokeWidth={3} />
+                            <Plus size={12} strokeWidth={3} />
                           </button>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Reps</span>
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-text-muted">Reps</span>
+                        <div className="flex items-center gap-1.5">
                           <button 
                             onClick={() => updateExercise(ex.id, 'reps', -1)}
-                            className="w-8 h-8 rounded-xl bg-surfaceHighlight border border-white/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-surfaceHighlight border border-white/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                           >
-                            <Minus size={14} strokeWidth={3} />
+                            <Minus size={12} strokeWidth={3} />
                           </button>
-                          <span className="w-6 text-center font-black text-white tabular-nums text-sm">
+                          <span className="w-4 sm:w-6 text-center font-black text-white tabular-nums text-xs sm:text-sm">
                             {ex.reps.toString().padStart(2, '0')}
                           </span>
                           <button 
                             onClick={() => updateExercise(ex.id, 'reps', 1)}
-                            className="w-8 h-8 rounded-xl bg-surfaceHighlight border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-surfaceHighlight border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
                           >
-                            <Plus size={14} strokeWidth={3} />
+                            <Plus size={12} strokeWidth={3} />
                           </button>
                         </div>
                       </div>
@@ -306,9 +317,30 @@ export function QuestSystem() {
         </div>
       </div>
 
-      <Button onClick={handleSave} fullWidth className="h-14 text-lg font-bold shadow-lg shadow-primary/20">
-        Save
-      </Button>
+      <div className="relative">
+        <Button 
+          onClick={handleSave} 
+          fullWidth 
+          className={cn(
+            "h-14 text-lg font-bold shadow-lg shadow-primary/20 transition-all duration-300 rounded-2xl relative overflow-hidden",
+            isSaving ? "scale-[0.98] bg-primary/80" : ""
+          )}
+        >
+          {isSaving ? (
+            <span className="flex items-center gap-2">
+              <Zap className="animate-pulse" size={20} />
+              SAVING...
+            </span>
+          ) : (
+            "Save"
+          )}
+        </Button>
+      </div>
+
+      <SaveNotificationPopup 
+        isOpen={isSavePopupOpen} 
+        onClose={() => setIsSavePopupOpen(false)} 
+      />
 
       {/* Exercise Selection Bottom Sheet */}
       <BottomSheet 
