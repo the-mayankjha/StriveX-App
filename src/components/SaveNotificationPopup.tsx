@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
 import ElectricBorder from './effects/ElectricBorder';
@@ -12,11 +12,18 @@ interface SaveNotificationPopupProps {
 export function SaveNotificationPopup({ isOpen, onClose }: SaveNotificationPopupProps) {
   const { isSoloLevelingMode } = useWorkout();
 
+  const hasPlayedRef = useRef(false);
+
   useEffect(() => {
-    if (isOpen && isSoloLevelingMode) {
+    if (isOpen && isSoloLevelingMode && !hasPlayedRef.current) {
+      hasPlayedRef.current = true;
       const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
-      audio.volume = 0.4;
+      audio.volume = 0.2;
       audio.play().catch(e => console.error("Audio play failed:", e));
+    }
+
+    if (!isOpen) {
+      hasPlayedRef.current = false;
     }
 
     if (isOpen) {

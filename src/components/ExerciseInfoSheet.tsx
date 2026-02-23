@@ -24,7 +24,12 @@ export function ExerciseInfoSheet({ exercise, isOpen, onClose }: ExerciseInfoShe
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={() => {
+              const audio = new Audio('/assets/audio/close.wav');
+              audio.volume = 0.5;
+              audio.play().catch(e => console.log('Audio play blocked:', e));
+              onClose();
+            }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
           />
 
@@ -53,7 +58,12 @@ export function ExerciseInfoSheet({ exercise, isOpen, onClose }: ExerciseInfoShe
                 {exercise.name}
               </h2>
               <button
-                onClick={onClose}
+                onClick={() => {
+                  const audio = new Audio('/assets/audio/close.wav');
+                  audio.volume = 0.5;
+                  audio.play().catch(e => console.log('Audio play blocked:', e));
+                  onClose();
+                }}
                 className="p-2 rounded-full bg-white/5 text-text-muted hover:text-white transition-colors"
               >
                 <X size={20} />

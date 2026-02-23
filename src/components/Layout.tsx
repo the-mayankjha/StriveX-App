@@ -30,11 +30,17 @@ export function Layout() {
       {/* Global Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/5">
         <div className="container mx-auto max-w-md h-16 px-5 flex items-center justify-between">
-          <button 
-            onClick={() => setIsProfileOpen(true)}
+          <motion.button 
+            onClick={() => {
+              const audio = new Audio('/assets/audio/slide.wav');
+              audio.volume = 0.5;
+              audio.play().catch(e => console.log('Audio play blocked:', e));
+              setIsProfileOpen(true);
+            }}
             className="relative group outline-none"
+            whileTap={{ scale: 0.9 }}
           >
-            <div className="w-10 h-10 rounded-full border border-primary/20 overflow-hidden bg-surfaceHighlight group-active:scale-95 transition-transform">
+            <div className="w-10 h-10 rounded-full border border-primary/20 overflow-hidden bg-surfaceHighlight transition-transform">
               {playerStats.avatarUrl ? (
                 <img src={playerStats.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
@@ -46,7 +52,7 @@ export function Layout() {
             <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-primary border-2 border-background flex items-center justify-center">
               <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             </div>
-          </button>
+          </motion.button>
 
           <div className="flex flex-col items-center">
             <h1 className="text-xl font-black tracking-tighter text-white">
@@ -58,13 +64,30 @@ export function Layout() {
           </div>
 
           <motion.button 
-            onClick={() => openSlider('quest')}
-            className="w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-xl text-white outline-none active:scale-90 transition-transform"
+            onClick={() => {
+              const audio = new Audio('/assets/audio/slide.wav');
+              audio.volume = 0.5;
+              audio.play().catch(e => console.log('Audio play blocked:', e));
+              isSliderOpen ? closeSlider() : openSlider('quest');
+            }}
+            className="w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-xl text-white outline-none z-50 relative"
             whileTap={{ scale: 0.9 }}
           >
-            <div className="w-6 h-[2px] bg-current rounded-full" />
-            <div className="w-4 h-[2px] bg-current rounded-full self-end mr-2" />
-            <div className="w-6 h-[2px] bg-current rounded-full" />
+            <motion.div 
+              animate={isSliderOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-6 h-[2px] bg-current rounded-full origin-center" 
+            />
+            <motion.div 
+              animate={isSliderOpen ? { width: 0, opacity: 0 } : { width: 16, opacity: 1 }}
+              transition={{ duration: 0.2 }}
+              className="h-[2px] bg-current rounded-full self-end mr-2" 
+            />
+            <motion.div 
+              animate={isSliderOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-6 h-[2px] bg-current rounded-full origin-center" 
+            />
           </motion.button>
         </div>
 

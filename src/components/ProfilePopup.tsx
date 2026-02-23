@@ -201,7 +201,12 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
 
                     {/* Close Button */}
                     <button 
-                      onClick={onClose}
+                      onClick={() => {
+                        const audio = new Audio('/assets/audio/close.wav');
+                        audio.volume = 0.5;
+                        audio.play().catch(err => console.log('Audio play blocked:', err));
+                        onClose();
+                      }}
                       className="absolute top-0 right-0 p-2 rounded-full text-text-muted hover:text-white transition-colors"
                     >
                       <X size={20} />

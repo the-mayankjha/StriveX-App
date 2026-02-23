@@ -151,7 +151,12 @@ export function SideNavBar({ isOpen, onClose, initialTab = 'profile' }: SideNavB
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={() => {
+              const audio = new Audio('/assets/audio/close.wav');
+              audio.volume = 0.5;
+              audio.play().catch(e => console.log('Audio play blocked:', e));
+              onClose();
+            }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
           />
 
@@ -187,7 +192,12 @@ export function SideNavBar({ isOpen, onClose, initialTab = 'profile' }: SideNavB
                   <h2 className="text-2xl text-white">System Menu</h2>
                 </div>
                 <button 
-                  onClick={onClose}
+                  onClick={() => {
+                    const audio = new Audio('/assets/audio/close.wav');
+                    audio.volume = 0.5;
+                    audio.play().catch(err => console.log('Audio play blocked:', err));
+                    onClose();
+                  }}
                   className="p-2 rounded-full bg-white/5 text-text-muted hover:text-white transition-colors"
                 >
                    <X size={20} />

@@ -17,12 +17,21 @@ export function QuestInfoPopup({ isOpen, onClose, questData, dailyProgress }: Qu
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl">
+        <div 
+          className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl"
+          onClick={() => {
+            const audio = new Audio('/assets/audio/close.wav');
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log('Audio play blocked:', e));
+            onClose();
+          }}
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 50 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 50 }}
             className="w-full max-w-[340px] relative"
+            onClick={(e) => e.stopPropagation()}
           >
             <ElectricBorder
               color="#3B82F6"

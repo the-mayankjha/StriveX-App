@@ -19,7 +19,12 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={() => {
+              const audio = new Audio('/assets/audio/close.wav');
+              audio.volume = 0.5;
+              audio.play().catch(e => console.log('Audio play blocked:', e));
+              onClose();
+            }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
           />
           
@@ -41,7 +46,12 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
             <div className="px-6 py-2 flex justify-between items-center bg-surface border-b border-white/5">
               <h3 className="text-xl font-bold text-white">{title}</h3>
               <button 
-                onClick={onClose}
+                onClick={() => {
+                  const audio = new Audio('/assets/audio/close.wav');
+                  audio.volume = 0.5;
+                  audio.play().catch(e => console.log('Audio play blocked:', e));
+                  onClose();
+                }}
                 className="p-2 rounded-full bg-white/5 text-white/50 hover:text-white transition-colors"
               >
                 <X size={20} />

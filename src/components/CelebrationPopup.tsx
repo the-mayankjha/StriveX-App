@@ -49,7 +49,15 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
     <AnimatePresence>
       {type && (
 
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#000000]/85 backdrop-blur-xl">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#000000]/85 backdrop-blur-xl"
+          onClick={() => {
+            const audio = new Audio('/assets/audio/close.wav');
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log('Audio play blocked:', e));
+            onClose();
+          }}
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 40 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -58,6 +66,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
               "w-full max-w-sm relative transition-all duration-500",
               !isSoloLevelingMode && "bg-surface/98 border-2 border-primary/20 shadow-xl rounded-[2rem]",
             )}
+            onClick={(e) => e.stopPropagation()}
           >
             {isSoloLevelingMode ? (
               <ElectricBorder
