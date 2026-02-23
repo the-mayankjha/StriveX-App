@@ -11,7 +11,7 @@ interface RadarChartProps {
 }
 
 export function RadarChart({ stats, isSoloMode = false }: RadarChartProps) {
-  const size = 300;
+  const size = 260;
   const center = size / 2;
   const radius = size * 0.35;
   const numStats = stats.length;
@@ -58,8 +58,8 @@ export function RadarChart({ stats, isSoloMode = false }: RadarChartProps) {
               y1={center}
               x2={x}
               y2={y}
-              stroke={isSoloMode ? "rgba(59, 130, 246, 0.2)" : "rgba(255, 255, 255, 0.1)"}
-              strokeWidth="1"
+              stroke={isSoloMode ? "rgba(59, 130, 246, 0.3)" : "rgba(255, 255, 255, 0.1)"}
+              strokeWidth={isSoloMode ? "0.5" : "1"}
             />
           );
         })}
@@ -70,8 +70,8 @@ export function RadarChart({ stats, isSoloMode = false }: RadarChartProps) {
             key={`web-${i}`}
             d={path}
             fill="none"
-            stroke={isSoloMode ? "rgba(59, 130, 246, 0.1)" : "rgba(255, 255, 255, 0.05)"}
-            strokeWidth="1"
+            stroke={isSoloMode ? "rgba(59, 130, 246, 0.15)" : "rgba(255, 255, 255, 0.05)"}
+            strokeWidth={isSoloMode ? "0.5" : "1"}
           />
         ))}
 
@@ -81,11 +81,11 @@ export function RadarChart({ stats, isSoloMode = false }: RadarChartProps) {
           animate={{ pathLength: 1, opacity: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
           d={dataPath}
-          fill={isSoloMode ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.05)"}
+          fill={isSoloMode ? "rgba(59, 130, 246, 0.2)" : "rgba(59, 130, 246, 0.05)"}
           stroke="#3B82F6"
-          strokeWidth={isSoloMode ? "2" : "1.5"}
+          strokeWidth={isSoloMode ? "2.5" : "1.5"}
           strokeLinejoin="round"
-          className={isSoloMode ? "drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" : ""}
+          className={isSoloMode ? "drop-shadow-[0_0_12px_rgba(59, 130, 246, 0.6)]" : ""}
         />
 
         {/* Data Points */}
@@ -97,9 +97,9 @@ export function RadarChart({ stats, isSoloMode = false }: RadarChartProps) {
             transition={{ delay: 0.5 + i * 0.1 }}
             cx={p.x}
             cy={p.y}
-            r={isSoloMode ? "3" : "2.5"}
+            r={isSoloMode ? "3.5" : "2.5"}
             fill="#3B82F6"
-            className={isSoloMode ? "drop-shadow-[0_0_4px_rgba(59,130,246,0.8)]" : ""}
+            className={isSoloMode ? "drop-shadow-[0_0_6px_rgba(59, 130, 246, 1)]" : ""}
           />
         ))}
 
@@ -117,7 +117,7 @@ export function RadarChart({ stats, isSoloMode = false }: RadarChartProps) {
               y={y}
               textAnchor="middle"
               className={isSoloMode 
-                ? "fill-primary text-[10px] font-black italic tracking-tighter" 
+                ? "fill-primary text-[11px] font-black italic tracking-widest" 
                 : "fill-text-muted text-[8px] font-bold uppercase tracking-widest"}
               style={{ dominantBaseline: 'middle' }}
             >
@@ -128,14 +128,15 @@ export function RadarChart({ stats, isSoloMode = false }: RadarChartProps) {
 
         {/* Center Ornament for Solo Mode */}
         {isSoloMode && (
-          <g transform={`translate(${center - 10}, ${center - 10})`} className="opacity-40">
+          <g transform={`translate(${center - 10}, ${center - 10})`} className="opacity-60">
             <path
               d="M10 0 L20 10 L10 20 L0 10 Z"
               fill="none"
               stroke="#3B82F6"
-              strokeWidth="0.5"
+              strokeWidth="0.8"
+              className="animate-pulse"
             />
-            <circle cx="10" cy="10" r="1.5" fill="#3B82F6" />
+            <circle cx="10" cy="10" r="1.5" fill="#3B82F6" className="animate-pulse" />
           </g>
         )}
       </svg>
