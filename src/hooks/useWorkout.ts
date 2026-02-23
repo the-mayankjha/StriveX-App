@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 
 import { type PlayerStats, addXpToStats, calculateExerciseXp } from '../utils/leveling';
@@ -55,6 +55,33 @@ export function useWorkout() {
   });
 
   const [celebration, setCelebration] = useState<{ type: 'level-up' | 'quest-complete' | null; data?: any }>({ type: null });
+
+  // Retroactive Stats Initialization based on Level
+  useEffect(() => {
+    setPlayerStats(currentStats => {
+      const expectedBase = 10 + (currentStats.level - 1) * 2;
+      
+      const needsUpdate = (
+        currentStats.strength < expectedBase ||
+        currentStats.agility < expectedBase ||
+        currentStats.vitality < expectedBase ||
+        currentStats.perception < expectedBase ||
+        currentStats.intelligence < expectedBase
+      );
+
+      if (needsUpdate) {
+        return {
+          ...currentStats,
+          strength: Math.max(currentStats.strength, expectedBase),
+          agility: Math.max(currentStats.agility, expectedBase),
+          vitality: Math.max(currentStats.vitality, expectedBase),
+          perception: Math.max(currentStats.perception, expectedBase),
+          intelligence: Math.max(currentStats.intelligence, expectedBase),
+        };
+      }
+      return currentStats;
+    });
+  }, [setPlayerStats]);
 
   // Reset progress if date changes
   const todayDate = new Date().toISOString().split('T')[0];
