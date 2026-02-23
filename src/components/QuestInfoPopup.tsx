@@ -1,18 +1,19 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Clock } from 'lucide-react';
 import ElectricBorder from './effects/ElectricBorder';
-
+import { cn } from '../utils/cn';
 
 interface QuestInfoPopupProps {
   isOpen: boolean;
   onClose: () => void;
   questData: {
     category: string;
-    exercises: Array<{ name: string; sets: number; reps: number }>;
+    exercises: Array<{ id: string; name: string; sets: number; reps: number }>;
   };
+  dailyProgress?: any;
 }
 
-export function QuestInfoPopup({ isOpen, onClose, questData }: QuestInfoPopupProps) {
+export function QuestInfoPopup({ isOpen, onClose, questData, dailyProgress }: QuestInfoPopupProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -72,12 +73,31 @@ export function QuestInfoPopup({ isOpen, onClose, questData }: QuestInfoPopupPro
 
                 <div className="space-y-3 px-2">
                   {questData.exercises.length > 0 ? (
-                    questData.exercises.map((ex, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-xs">
-                        <span className="font-bold text-text-muted uppercase tracking-tighter truncate max-w-[180px]">-{ex.name}</span>
-                        <span className="font-black text-primary min-w-[60px] text-right">[0/{ex.sets * ex.reps}]</span>
-                      </div>
-                    ))
+                    questData.exercises.map((ex, idx) => {
+                      const isCompleted = dailyProgress?.statuses?.[ex.id] === 'completed';
+                      const isSkipped = dailyProgress?.statuses?.[ex.id] === 'skipped';
+                      const target = ex.sets * ex.reps;
+                      
+                      return (
+                        <div key={idx} className={cn(
+                          "flex justify-between items-center text-xs transition-opacity duration-300",
+                          isCompleted || isSkipped ? "opacity-40" : "opacity-100"
+                        )}>
+                          <span className={cn(
+                            "font-bold text-text-muted uppercase tracking-tighter truncate max-w-[180px]",
+                            isCompleted || isSkipped ? "line-through" : ""
+                          )}>
+                            -{ex.name}
+                          </span>
+                          <span className={cn(
+                            "font-black min-w-[60px] text-right",
+                            isCompleted ? "text-primary" : isSkipped ? "text-red-500" : "text-primary"
+                          )}>
+                            [{isCompleted ? target : isSkipped ? 0 : 0}/{target}]
+                          </span>
+                        </div>
+                      );
+                    })
                   ) : (
 
                     <p className="text-center text-xs italic text-text-muted">Rest & Recovery Active</p>
@@ -100,7 +120,12 @@ export function QuestInfoPopup({ isOpen, onClose, questData }: QuestInfoPopupPro
 
               {/* Confirm Button */}
               <button
-                onClick={onClose}
+                onClick={() => {
+                  const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+                  audio.volume = 0.4;
+                  audio.play().catch(e => console.log('Audio play blocked:', e));
+                  onClose();
+                }}
                 className="w-full py-3 mt-4 border border-primary/30 text-primary text-[11px] font-black uppercase tracking-[0.5em] hover:bg-primary/10 transition-colors"
               >
                 Accept

@@ -190,6 +190,7 @@ export function Dashboard() {
           category: dailyQuest?.category || 'rest',
           exercises: dailyQuest?.exercises || []
         }}
+        dailyProgress={dailyProgress}
       />
     </div>
 
