@@ -1,17 +1,20 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Dumbbell, Trophy, Users } from 'lucide-react';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import { cn } from '../utils/cn';
 import { useWorkout } from '../hooks/useWorkout';
-import { ProfilePopup } from './ProfilePopup';
+import { RightSlider } from './RightSlider';
 
 export function Layout() {
   const location = useLocation();
-  const { playerStats, isSoloLevelingMode, setIsSoloLevelingMode } = useWorkout();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { 
+    playerStats, 
+    isSliderOpen, 
+    sliderTab, 
+    openSlider, 
+    closeSlider 
+  } = useWorkout();
 
   const navItems = [
     { path: '/', icon: Dumbbell, label: 'Quest' },
@@ -25,7 +28,7 @@ export function Layout() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/5">
         <div className="container mx-auto max-w-md h-16 px-5 flex items-center justify-between">
           <button 
-            onClick={() => setIsProfileOpen(true)}
+            onClick={() => openSlider('profile')}
             className="relative group outline-none"
           >
             <div className="w-10 h-10 rounded-full border border-primary/20 overflow-hidden bg-surfaceHighlight group-active:scale-95 transition-transform">
@@ -52,73 +55,26 @@ export function Layout() {
           </div>
 
           <motion.button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => openSlider('quest')}
             className="w-10 h-10 flex flex-col items-center justify-center gap-1 rounded-xl text-white outline-none active:scale-90 transition-transform"
             whileTap={{ scale: 0.9 }}
           >
             <motion.span 
-              animate={isMenuOpen ? { rotate: 45, y: 3 } : { rotate: 0, y: 0 }}
-              className="w-6 h-[2px] bg-current rounded-full"
+              animate={isSliderOpen && sliderTab === 'quest' ? { rotate: 45, y: 3 } : { rotate: 0, y: 0 }}
+              className="w-6 h-[2px] bg-current rounded-full shadow-glow-blue"
             />
             <motion.span 
-              animate={isMenuOpen ? { opacity: 0 } : { opacity: 1 }}
-              className="w-6 h-[2px] bg-current rounded-full"
+              animate={isSliderOpen && sliderTab === 'quest' ? { opacity: 0 } : { opacity: 1 }}
+              className="w-6 h-[2px] bg-current rounded-full shadow-glow-blue"
             />
             <motion.span 
-              animate={isMenuOpen ? { rotate: -45, y: -3 } : { rotate: 0, y: 0 }}
-              className="w-6 h-[2px] bg-current rounded-full"
+              animate={isSliderOpen && sliderTab === 'quest' ? { rotate: -45, y: -3 } : { rotate: 0, y: 0 }}
+              className="w-6 h-[2px] bg-current rounded-full shadow-glow-blue"
             />
           </motion.button>
         </div>
 
-        {/* Hamburger Menu Dropdown */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <>
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsMenuOpen(false)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-              />
-              <motion.div 
-                initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                className="fixed top-20 right-5 w-64 bg-surface border border-white/10 rounded-2xl shadow-2xl z-50 p-4"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-2">
-                    <span className="text-sm font-bold text-white">Solo Leveling Mode</span>
-                    <button 
-                      onClick={() => setIsSoloLevelingMode(!isSoloLevelingMode)}
-                      className={cn(
-                        "w-12 h-6 rounded-full transition-colors relative",
-                        isSoloLevelingMode ? "bg-primary" : "bg-white/10"
-                      )}
-                    >
-                      <motion.div 
-                        animate={{ x: isSoloLevelingMode ? 26 : 2 }}
-                        className="absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow-sm"
-                      />
-                    </button>
-                  </div>
-                  
-                  <div className="h-[1px] bg-white/5 mx-2" />
-                  
-                  <div className="px-2 pb-2">
-                    <p className="text-[10px] text-text-muted leading-relaxed">
-                      {isSoloLevelingMode 
-                        ? "Solo Leveling system aesthetics and daily quest info popups are currently enabled." 
-                        : "Normal fitness tracking theme is active. System popups are disabled."}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+        {/* Old Hamburger Menu Removed - Functionality moved to RightSlider */}
       </header>
 
 
@@ -151,10 +107,10 @@ export function Layout() {
           })}
         </div>
       </nav>
-      <ProfilePopup 
-        stats={playerStats}
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
+      <RightSlider 
+        isOpen={isSliderOpen}
+        onClose={closeSlider}
+        initialTab={sliderTab}
       />
     </div>
   );

@@ -76,6 +76,10 @@ export function ExerciseInfoSheet({ exercise, isOpen, onClose }: ExerciseInfoShe
                       src={exercise.gifUrl}
                       alt={exercise.name}
                       onLoad={() => setIsImgLoading(false)}
+                      onError={(e) => {
+                        setIsImgLoading(false);
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                       className={cn(
                         "w-full h-full object-cover transition-opacity duration-500",
                         isImgLoading ? "opacity-0" : "opacity-100",

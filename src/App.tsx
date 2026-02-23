@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { ExerciseBank } from './pages/ExerciseBank';
-import { QuestSystem } from './pages/QuestSystem';
 
 function App() {
   return (
@@ -10,7 +9,7 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/quest-system" element={<QuestSystem />} />
+          <Route path="/quest-system" element={<Navigate to="/" replace />} />
           <Route path="/exercises" element={<ExerciseBank />} />
           <Route path="/profile" element={<Navigate to="/" replace />} />
         </Route>
