@@ -1,20 +1,23 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Dumbbell, Trophy, Users } from 'lucide-react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 import { cn } from '../utils/cn';
 import { useWorkout } from '../hooks/useWorkout';
-import { RightSlider } from './RightSlider';
+import { ProfilePopup } from './ProfilePopup';
+import { SideNavBar } from './SideNavBar';
 
 export function Layout() {
   const location = useLocation();
   const { 
     playerStats, 
-    isSliderOpen, 
-    sliderTab, 
-    openSlider, 
-    closeSlider 
+    isSliderOpen,
+    sliderTab,
+    openSlider,
+    closeSlider
   } = useWorkout();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const navItems = [
     { path: '/', icon: Dumbbell, label: 'Quest' },
@@ -28,7 +31,7 @@ export function Layout() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/5">
         <div className="container mx-auto max-w-md h-16 px-5 flex items-center justify-between">
           <button 
-            onClick={() => openSlider('profile')}
+            onClick={() => setIsProfileOpen(true)}
             className="relative group outline-none"
           >
             <div className="w-10 h-10 rounded-full border border-primary/20 overflow-hidden bg-surfaceHighlight group-active:scale-95 transition-transform">
@@ -56,25 +59,15 @@ export function Layout() {
 
           <motion.button 
             onClick={() => openSlider('quest')}
-            className="w-10 h-10 flex flex-col items-center justify-center gap-1 rounded-xl text-white outline-none active:scale-90 transition-transform"
+            className="w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-xl text-white outline-none active:scale-90 transition-transform"
             whileTap={{ scale: 0.9 }}
           >
-            <motion.span 
-              animate={isSliderOpen && sliderTab === 'quest' ? { rotate: 45, y: 3 } : { rotate: 0, y: 0 }}
-              className="w-6 h-[2px] bg-current rounded-full shadow-glow-blue"
-            />
-            <motion.span 
-              animate={isSliderOpen && sliderTab === 'quest' ? { opacity: 0 } : { opacity: 1 }}
-              className="w-6 h-[2px] bg-current rounded-full shadow-glow-blue"
-            />
-            <motion.span 
-              animate={isSliderOpen && sliderTab === 'quest' ? { rotate: -45, y: -3 } : { rotate: 0, y: 0 }}
-              className="w-6 h-[2px] bg-current rounded-full shadow-glow-blue"
-            />
+            <div className="w-6 h-[2px] bg-current rounded-full" />
+            <div className="w-4 h-[2px] bg-current rounded-full self-end mr-2" />
+            <div className="w-6 h-[2px] bg-current rounded-full" />
           </motion.button>
         </div>
 
-        {/* Old Hamburger Menu Removed - Functionality moved to RightSlider */}
       </header>
 
 
@@ -107,7 +100,13 @@ export function Layout() {
           })}
         </div>
       </nav>
-      <RightSlider 
+      <ProfilePopup 
+        stats={playerStats}
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+      />
+      
+      <SideNavBar 
         isOpen={isSliderOpen}
         onClose={closeSlider}
         initialTab={sliderTab}

@@ -11,7 +11,7 @@ import {
 import { Card } from '../components/Card';
 import { useWorkout, type QuestExercise, type ExerciseStatus } from '../hooks/useWorkout';
 import { cn } from '../utils/cn';
-
+import { useNavigate, Link } from 'react-router-dom';
 import { ExerciseInfoSheet } from '../components/ExerciseInfoSheet';
 import { CelebrationPopup } from '../components/CelebrationPopup';
 import { QuestInfoPopup } from '../components/QuestInfoPopup';
@@ -29,11 +29,10 @@ export function Dashboard() {
     celebration,
     clearCelebration,
     isQuestInfoVisible,
-    markQuestInfoAsSeen,
-    openSlider
+    markQuestInfoAsSeen
   } = useWorkout();
 
-
+  const navigate = useNavigate();
   const [selectedExercise, setSelectedExercise] = useState<QuestExercise | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -57,10 +56,7 @@ export function Dashboard() {
       {/* Today's Quest Card (same as before) */}
       <div className="space-y-4">
         {/* ... (img and category text unchanged) */}
-        <button 
-          onClick={() => openSlider('quest')} 
-          className="w-full text-left block active:scale-[0.98] transition-transform"
-        >
+        <Link to="/quest-system" className="block active:scale-[0.98] transition-transform">
           <Card className="p-0 border-0 overflow-hidden relative group bg-surface shadow-2xl">
              <div className="aspect-[16/9] w-full overflow-hidden">
                <img 
@@ -89,7 +85,7 @@ export function Dashboard() {
                </div>
              </div>
           </Card>
-        </button>
+        </Link>
       </div>
 
       {/* Daily Stats Grid (same as before) */}
@@ -129,7 +125,7 @@ export function Dashboard() {
         <div className="flex justify-between items-end px-1">
           <h3 className="text-xl font-bold text-white">Workouts</h3>
           <button 
-            onClick={() => openSlider('quest')}
+            onClick={() => navigate('/quest-system')}
             className="text-sm text-primary font-medium flex items-center gap-1 hover:text-primary/80 transition-colors"
           >
             Set Quests <ChevronRight size={16} />
@@ -155,7 +151,7 @@ export function Dashboard() {
               ))
             ) : (
               <button 
-                onClick={() => openSlider('quest')}
+                onClick={() => navigate('/quest-system')}
                 className="w-full py-10 rounded-3xl border-2 border-dashed border-white/5 text-text-muted hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-medium italic"
               >
                 No exercises scheduled for today

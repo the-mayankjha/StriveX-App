@@ -55,15 +55,6 @@ export function useWorkout() {
   });
 
   const [celebration, setCelebration] = useState<{ type: 'level-up' | 'quest-complete' | null; data?: any }>({ type: null });
-  const [isSliderOpen, setIsSliderOpen] = useState(false);
-  const [sliderTab, setSliderTab] = useState<'profile' | 'quest' | 'bank'>('profile');
-
-  const openSlider = useCallback((tab: 'profile' | 'quest' | 'bank') => {
-    setSliderTab(tab);
-    setIsSliderOpen(true);
-  }, []);
-
-  const closeSlider = useCallback(() => setIsSliderOpen(false), []);
 
   // Reset progress if date changes
   const todayDate = new Date().toISOString().split('T')[0];
@@ -178,6 +169,16 @@ export function useWorkout() {
   
   const isQuestInfoVisible = isSoloLevelingMode && hasSeenQuestInfo !== todayDate;
   const markQuestInfoAsSeen = useCallback(() => setHasSeenQuestInfo(todayDate), [todayDate, setHasSeenQuestInfo]);
+
+  const [isSliderOpen, setIsSliderOpen] = useState(false);
+  const [sliderTab, setSliderTab] = useState<'profile' | 'quest' | 'bank'>('profile');
+
+  const openSlider = useCallback((tab: 'profile' | 'quest' | 'bank' = 'profile') => {
+    setSliderTab(tab);
+    setIsSliderOpen(true);
+  }, []);
+
+  const closeSlider = useCallback(() => setIsSliderOpen(false), []);
 
   return {
     playerStats,

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Sword, Dumbbell, Zap, Shield, Target, Brain, Activity, Flame, Settings, Search, SlidersHorizontal, Plus, Trash2, Loader2, Moon } from 'lucide-react';
 import { cn } from '../utils/cn';
@@ -6,7 +6,6 @@ import { useWorkout, type QuestExercise } from '../hooks/useWorkout';
 import { RadarChart } from './RadarChart';
 import { RANKS, calculateRank } from '../utils/leveling';
 import { exerciseService, type ExerciseDBItem } from '../services/exerciseService';
-import { useEffect } from 'react';
 
 const CATEGORIES = [
   { id: 'push', label: 'Push', icon: Flame },
@@ -18,13 +17,13 @@ const CATEGORIES = [
   { id: 'rest', label: 'Rest', icon: Moon },
 ];
 
-interface RightSliderProps {
+interface SideNavBarProps {
   isOpen: boolean;
   onClose: () => void;
   initialTab?: 'profile' | 'quest' | 'bank';
 }
 
-export function RightSlider({ isOpen, onClose, initialTab = 'profile' }: RightSliderProps) {
+export function SideNavBar({ isOpen, onClose, initialTab = 'profile' }: SideNavBarProps) {
   const { 
     playerStats, 
     isSoloLevelingMode, 
@@ -99,6 +98,10 @@ export function RightSlider({ isOpen, onClose, initialTab = 'profile' }: RightSl
   // Fetch Filters
   useEffect(() => {
     if (!isOpen) return;
+    
+    // Only fetch if we don't have data yet
+    if (bodyParts.length > 0 && equipments.length > 0 && targetMuscles.length > 0) return;
+
     const fetchFilters = async () => {
       try {
         const [parts, equs, targets] = await Promise.all([
@@ -114,7 +117,7 @@ export function RightSlider({ isOpen, onClose, initialTab = 'profile' }: RightSl
       }
     };
     fetchFilters();
-  }, [isOpen]);
+  }, [isOpen, bodyParts.length, equipments.length, targetMuscles.length]);
 
   const today = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()], []);
   const dailyQuest = weeklyQuest[today] || { category: 'rest', exercises: [] };
@@ -253,13 +256,13 @@ export function RightSlider({ isOpen, onClose, initialTab = 'profile' }: RightSl
                        </div>
                     </div>
 
-                    {/* Radar Chart Slider Port */}
+                    {/* Radar Chart */}
                     <div className="p-6 bg-white/5 border border-white/5 rounded-[2rem]">
                       <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted mb-6 text-center">System Potential Analysis</h4>
                       <RadarChart stats={radarData} isSoloMode={isSoloLevelingMode} />
                     </div>
 
-                    {/* Stats Grid Slider Port */}
+                    {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-3">
                       {statItems.map((item) => (
                         <div key={item.label} className="p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
@@ -274,7 +277,7 @@ export function RightSlider({ isOpen, onClose, initialTab = 'profile' }: RightSl
                       ))}
                     </div>
 
-                    {/* Solo Leveling Settings Slider Port */}
+                    {/* Solo Leveling Settings */}
                     <div className="p-6 bg-primary/5 border border-primary/10 rounded-[2rem] space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -368,37 +371,37 @@ export function RightSlider({ isOpen, onClose, initialTab = 'profile' }: RightSl
                                  isSkipped ? "bg-red-500/5 border-red-500/20" :
                                  "bg-white/5 border-white/5"
                                )}>
-                                 <div className="flex items-center justify-between">
-                                   <div className="flex items-center gap-4">
+                                 <div className="flex flex-wrap items-center justify-between gap-4">
+                                   <div className="flex gap-4 flex-1 min-w-[150px]">
                                      <div className={cn(
-                                       "w-10 h-10 rounded-xl flex items-center justify-center border transition-colors",
+                                       "w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border transition-colors",
                                        isDone ? "border-primary text-primary bg-primary/10 shadow-glow-blue/20" : 
                                        isSkipped ? "border-red-500/50 text-red-500 bg-red-500/10" :
                                        "border-white/10 text-white/20"
                                      )}>
                                        <Sword size={20} />
                                      </div>
-                                     <div className="max-w-[120px]">
+                                     <div className="min-w-0">
                                        <h5 className={cn("text-xs font-black uppercase tracking-wide truncate", isDone ? "text-primary" : "text-white")}>
                                          {ex.name}
                                        </h5>
-                                       <span className="text-[10px] font-black text-text-muted uppercase tracking-tighter">
+                                       <span className="text-[9px] font-black text-text-muted uppercase tracking-tighter bg-white/5 px-1.5 rounded mt-1 inline-block">
                                          {ex.target}
                                        </span>
                                      </div>
                                    </div>
 
-                                   <div className="flex items-center gap-2">
-                                     <div className="flex flex-col items-end">
-                                       <span className="text-[9px] font-black text-text-muted uppercase">Intensity</span>
-                                       <span className="text-xs font-black text-white">{ex.sets}x{ex.reps}</span>
+                                   <div className="flex items-center justify-between w-full sm:w-auto gap-4 border-t sm:border-t-0 border-white/5 pt-3 sm:pt-0">
+                                     <div className="flex items-center gap-2">
+                                       <span className="text-[8px] font-black text-text-muted uppercase">Intensity</span>
+                                       <span className="text-xs font-black text-white bg-surfaceHighlight px-2 py-0.5 rounded border border-white/5">{ex.sets}x{ex.reps}</span>
                                      </div>
                                      <button 
                                        onClick={() => {
                                          const newExercises = dailyQuest.exercises.filter(e => e.id !== ex.id);
                                          updateDailyQuest(today, { ...dailyQuest, exercises: newExercises });
                                        }}
-                                       className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all ml-2"
+                                       className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all"
                                      >
                                        <Trash2 size={14} />
                                      </button>
@@ -454,7 +457,7 @@ export function RightSlider({ isOpen, onClose, initialTab = 'profile' }: RightSl
                         </button>
                       </div>
 
-                      {/* Filter Overlay (Simplified Port) */}
+                      {/* Filter Overlay */}
                       <AnimatePresence>
                         {isFilterOpen && (
                           <motion.div
