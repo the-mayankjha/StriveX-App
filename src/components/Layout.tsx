@@ -1,0 +1,97 @@
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Dumbbell, Trophy, Users } from 'lucide-react';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '../utils/cn';
+import { useWorkout } from '../hooks/useWorkout';
+
+export function Layout() {
+  const location = useLocation();
+  const { playerStats } = useWorkout();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navItems = [
+    { path: '/', icon: Dumbbell, label: 'Quest' },
+    { path: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
+    { path: '/guild', icon: Users, label: 'Guild' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background text-text font-sans pb-24">
+      {/* Global Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/5">
+        <div className="container mx-auto max-w-md h-16 px-5 flex items-center justify-between">
+          <Link to="/profile" className="relative group">
+            <div className="w-10 h-10 rounded-full border border-primary/20 overflow-hidden bg-surfaceHighlight">
+              {playerStats.avatarUrl ? (
+                <img src={playerStats.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold">
+                  {playerStats.level}
+                </div>
+              )}
+            </div>
+          </Link>
+
+          <div className="flex flex-col items-center">
+            <h1 className="text-xl font-black tracking-tighter text-white">
+              Strive<span className="text-red-500">X</span>
+            </h1>
+            <span className="text-[10px] text-text-muted font-bold uppercase tracking-[0.2em] mt-1.5">
+              Level Up Your Fitness
+            </span>
+          </div>
+
+          <motion.button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="w-10 h-10 flex flex-col items-center justify-center gap-1 rounded-xl text-white outline-none active:scale-90 transition-transform"
+            whileTap={{ scale: 0.9 }}
+          >
+            <motion.span 
+              animate={isMenuOpen ? { rotate: 45, y: 3 } : { rotate: 0, y: 0 }}
+              className="w-6 h-[2px] bg-current rounded-full"
+            />
+            <motion.span 
+              animate={isMenuOpen ? { opacity: 0 } : { opacity: 1 }}
+              className="w-6 h-[2px] bg-current rounded-full"
+            />
+            <motion.span 
+              animate={isMenuOpen ? { rotate: -45, y: -3 } : { rotate: 0, y: 0 }}
+              className="w-6 h-[2px] bg-current rounded-full"
+            />
+          </motion.button>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-5 pt-20 pb-6 max-w-md">
+        <Outlet />
+      </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 bg-surface/90 backdrop-blur-lg border-t border-white/5 z-50 pb-safe">
+        <div className="flex justify-around items-center h-20 max-w-md mx-auto px-2">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+            
+            return (
+              <Link 
+                key={item.path} 
+                to={item.path}
+                className={cn(
+                  "flex flex-col items-center justify-center w-20 h-full transition-all duration-300",
+                  isActive ? "text-white" : "text-text-muted hover:text-white/70"
+                )}
+              >
+                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                <span className={cn(
+                  "text-[10px] mt-1.5 font-bold transition-opacity",
+                  isActive ? "opacity-100" : "opacity-80"
+                )}>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
+  );
+}
