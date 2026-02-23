@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Dumbbell, Target, Layers } from 'lucide-react';
 import type { QuestExercise } from '../hooks/useWorkout';
+import { cn } from '../utils/cn';
 
 interface ExerciseInfoSheetProps {
   exercise: QuestExercise | null;
@@ -9,6 +11,8 @@ interface ExerciseInfoSheetProps {
 }
 
 export function ExerciseInfoSheet({ exercise, isOpen, onClose }: ExerciseInfoSheetProps) {
+  const [isImgLoading, setIsImgLoading] = useState(true);
+
   if (!exercise) return null;
 
   return (
@@ -26,9 +30,9 @@ export function ExerciseInfoSheet({ exercise, isOpen, onClose }: ExerciseInfoShe
 
           {/* Sheet */}
           <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
+            initial={{ y: '100vw', opacity: 0 }} // Slightly different entry for premium feel
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             drag="y"
             dragConstraints={{ top: 0 }}
@@ -36,7 +40,7 @@ export function ExerciseInfoSheet({ exercise, isOpen, onClose }: ExerciseInfoShe
             onDragEnd={(_, info) => {
               if (info.offset.y > 100) onClose();
             }}
-            className="fixed bottom-0 left-0 right-0 z-[101] bg-surface rounded-t-[32px] border-t border-white/5 pb-safe max-w-md mx-auto h-[85vh] overflow-hidden flex flex-col shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 z-[101] bg-surface rounded-t-[32px] border-t border-white/5 pb-safe max-w-md mx-auto h-[90vh] overflow-hidden flex flex-col shadow-2xl"
           >
             {/* Handle */}
             <div className="w-full flex justify-center p-4 shrink-0">
@@ -58,20 +62,34 @@ export function ExerciseInfoSheet({ exercise, isOpen, onClose }: ExerciseInfoShe
 
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto px-6 pb-10 custom-scrollbar">
-              {/* Enlarged GIF */}
-              <div className="aspect-square w-full rounded-3xl bg-surfaceHighlight overflow-hidden mb-6 border border-white/5 relative group">
+              {/* Enlarged GIF Container */}
+              <div className="aspect-square w-full rounded-3xl bg-surfaceHighlight overflow-hidden mb-6 border border-white/5 relative shadow-inner">
                 {exercise.gifUrl ? (
-                  <img
-                    src={exercise.gifUrl}
-                    alt={exercise.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    {isImgLoading && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-surfaceHighlight animate-pulse">
+                        <Dumbbell size={32} className="text-white/10 mb-2" />
+                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Loading Asset</span>
+                      </div>
+                    )}
+                    <img
+                      src={exercise.gifUrl}
+                      alt={exercise.name}
+                      onLoad={() => setIsImgLoading(false)}
+                      className={cn(
+                        "w-full h-full object-cover transition-opacity duration-500",
+                        isImgLoading ? "opacity-0" : "opacity-100",
+                        "contrast-110 brightness-105" // Subtle filters to pop the low-res GIF
+                      )}
+                      style={{ imageRendering: 'auto' }} // auto usually handles interpolation better for GIFs
+                    />
+                  </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-text-muted">
                     <Dumbbell size={64} />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
               </div>
 
               {/* Stats/Info Grid */}
