@@ -302,7 +302,7 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
       className={`relative overflow-visible isolate ${className ?? ''}`}
       style={{ '--electric-border-color': color, borderRadius, ...style } as CSSProperties}
     >
-      <div className="relative rounded-[inherit] z-10 overflow-visible">{children}</div>
+      <div className="relative rounded-[inherit] z-10 overflow-visible w-full h-full flex flex-col min-h-0">{children}</div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20">
         <canvas ref={canvasRef} className="block" />
       </div>

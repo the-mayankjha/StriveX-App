@@ -7,6 +7,7 @@ import { cn } from '../utils/cn';
 import { useWorkout } from '../hooks/useWorkout';
 import { ProfilePopup } from './ProfilePopup';
 import { SideNavBar } from './SideNavBar';
+import { SystemMenu } from './SystemMenu';
 
 export function Layout() {
   const location = useLocation();
@@ -15,7 +16,8 @@ export function Layout() {
     isSliderOpen,
     sliderTab,
     openSlider,
-    closeSlider
+    closeSlider,
+    isSoloLevelingMode
   } = useWorkout();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -130,7 +132,13 @@ export function Layout() {
       />
       
       <SideNavBar 
-        isOpen={isSliderOpen}
+        isOpen={isSliderOpen && !isSoloLevelingMode}
+        onClose={closeSlider}
+        initialTab={sliderTab}
+      />
+
+      <SystemMenu
+        isOpen={isSliderOpen && isSoloLevelingMode}
         onClose={closeSlider}
         initialTab={sliderTab}
       />
