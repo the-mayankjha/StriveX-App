@@ -35,6 +35,17 @@ export function QuestSystem() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSavePopupOpen, setIsSavePopupOpen] = useState(false);
 
+  // Filter States
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<string | null>(null);
+  const [selectedTargetMuscle, setSelectedTargetMuscle] = useState<string | null>(null);
+  const [activeFilterTab, setActiveFilterTab] = useState<'bodyPart' | 'muscle' | 'equipment'>('bodyPart');
+  
+  const [bodyParts, setBodyParts] = useState<string[]>([]);
+  const [equipments, setEquipments] = useState<string[]>([]);
+  const [targetMuscles, setTargetMuscles] = useState<string[]>([]);
+
   // Sync with weeklyQuest when activeDay changes
   useEffect(() => {
     const dayData = weeklyQuest[activeDay];
@@ -44,7 +55,7 @@ export function QuestSystem() {
     }
   }, [activeDay, weeklyQuest]);
 
-  // Fetch exercises from API
+  // Fetch Exercises from API
   useEffect(() => {
     if (!isBottomSheetOpen) return;
 
@@ -52,13 +63,25 @@ export function QuestSystem() {
       setIsLoading(true);
       try {
         let result;
-        if (searchQuery.trim().length > 2) {
+        const activeFilters = [
+          searchQuery.trim(),
+          selectedBodyPart,
+          selectedTargetMuscle,
+          selectedEquipment
+        ].filter(Boolean);
+
+        if (activeFilters.length > 1 || (searchQuery.trim().length > 0 && searchQuery.trim().length <= 2)) {
+          result = await exerciseService.searchExercises(activeFilters.join(' '));
+        } else if (searchQuery.trim().length > 2) {
           result = await exerciseService.searchExercises(searchQuery);
-        } else if (searchQuery.trim().length === 0) {
-          result = await exerciseService.getExercises(0, 20);
+        } else if (selectedBodyPart) {
+          result = await exerciseService.getExercisesByBodyPart(selectedBodyPart);
+        } else if (selectedEquipment) {
+          result = await exerciseService.getExercisesByEquipment(selectedEquipment);
+        } else if (selectedTargetMuscle) {
+          result = await exerciseService.getExercisesByTarget(selectedTargetMuscle);
         } else {
-          setIsLoading(false);
-          return;
+          result = await exerciseService.getExercises(0, 20);
         }
         setApiExercises(result.data);
       } catch (err) {
@@ -70,7 +93,28 @@ export function QuestSystem() {
 
     const debounce = setTimeout(fetchExercises, 500);
     return () => clearTimeout(debounce);
-  }, [searchQuery, isBottomSheetOpen]);
+  }, [searchQuery, isBottomSheetOpen, selectedBodyPart, selectedEquipment, selectedTargetMuscle]);
+
+  // Fetch Filters
+  useEffect(() => {
+    if (!isBottomSheetOpen || (bodyParts.length > 0 && equipments.length > 0 && targetMuscles.length > 0)) return;
+
+    const fetchFilters = async () => {
+      try {
+        const [parts, equs, targets] = await Promise.all([
+          exerciseService.getBodyParts(),
+          exerciseService.getEquipments(),
+          exerciseService.getTargetMuscles()
+        ]);
+        setBodyParts(parts);
+        setEquipments(equs);
+        setTargetMuscles(targets);
+      } catch (err) {
+        console.error('Error fetching filters:', err);
+      }
+    };
+    fetchFilters();
+  }, [isBottomSheetOpen, bodyParts.length, equipments.length, targetMuscles.length]);
 
   const updateExercise = (id: string, field: 'sets' | 'reps', delta: number) => {
     setExercises(prev => prev.map(ex => 
@@ -354,16 +398,92 @@ export function QuestSystem() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors" size={18} />
               <input 
                 type="text"
+                id="exercise-search"
+                name="exercise-search"
                 placeholder="Search exercise..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-surfaceHighlight border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
+                className="w-full bg-[#111218] border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
               />
             </div>
-            <button className="p-4 rounded-2xl bg-surfaceHighlight border border-white/5 text-text-muted hover:text-white hover:border-primary/50 transition-all flex items-center justify-center">
+            <button 
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={cn(
+                "p-4 rounded-2xl border transition-all flex items-center justify-center",
+                isFilterOpen || selectedBodyPart || selectedEquipment || selectedTargetMuscle
+                  ? "bg-primary/10 border-primary text-primary" 
+                  : "bg-surfaceHighlight border-white/5 text-text-muted hover:text-white"
+              )}
+            >
               <SlidersHorizontal size={18} />
             </button>
           </div>
+
+          {/* Filter Overlay */}
+          <AnimatePresence>
+            {isFilterOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden space-y-4 border-b border-white/5 pb-4"
+              >
+                <div className="flex p-1 bg-[#111218] rounded-2xl border border-white/5 gap-1 mx-1">
+                  {['bodyPart', 'muscle', 'equipment'].map((fTab) => (
+                    <button
+                      key={fTab}
+                      onClick={() => setActiveFilterTab(fTab as any)}
+                      className={cn(
+                        "flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                        activeFilterTab === fTab ? "bg-[#3b82f6] text-white shadow-md" : "text-text-muted hover:text-white"
+                      )}
+                    >
+                      {fTab.replace('Part', '')}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto custom-scrollbar pr-2 mt-4 px-1">
+                  {activeFilterTab === 'bodyPart' && bodyParts.map((part: string) => (
+                    <button
+                      key={part}
+                      onClick={() => setSelectedBodyPart(prev => prev === part ? null : part)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-[10px] font-bold transition-all border uppercase",
+                        selectedBodyPart === part ? "bg-[#3b82f6] border-[#3b82f6] text-white" : "bg-transparent border-white/10 text-text-muted hover:text-white"
+                      )}
+                    >
+                      {part}
+                    </button>
+                  ))}
+                  {activeFilterTab === 'muscle' && targetMuscles.map((m: string) => (
+                    <button
+                      key={m}
+                      onClick={() => setSelectedTargetMuscle(prev => prev === m ? null : m)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-[10px] font-bold transition-all border uppercase",
+                        selectedTargetMuscle === m ? "bg-[#3b82f6] border-[#3b82f6] text-white" : "bg-transparent border-white/10 text-text-muted hover:text-white"
+                      )}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                  {activeFilterTab === 'equipment' && equipments.map((e: string) => (
+                    <button
+                      key={e}
+                      onClick={() => setSelectedEquipment(prev => prev === e ? null : e)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-[10px] font-bold transition-all border uppercase",
+                        selectedEquipment === e ? "bg-[#3b82f6] border-[#3b82f6] text-white" : "bg-transparent border-white/10 text-text-muted hover:text-white"
+                      )}
+                    >
+                      {e}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="grid grid-cols-1 gap-3 pb-6">
             {isLoading ? (

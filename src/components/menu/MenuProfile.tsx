@@ -36,9 +36,9 @@ export function MenuProfile() {
   return (
     <motion.div
       key="profile"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.1 }}
       className={cn("space-y-6", !isSoloLevelingMode && "space-y-8")}
     >
       {/* PERSONAL INFO */}

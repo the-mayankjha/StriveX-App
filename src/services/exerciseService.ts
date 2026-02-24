@@ -1,4 +1,4 @@
-const BASE_URL = 'https://exercisedb.dev/api/v1';
+const BASE_URL = '/api/v1';
 
 // Fallback data for when API is down or limited
 const FALLBACK_BODY_PARTS = ['back', 'cardio', 'chest', 'lower arms', 'lower legs', 'neck', 'shoulders', 'upper arms', 'upper legs', 'waist'];

@@ -8,4 +8,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+      '/api/v1': {
+        target: 'https://exercisedb.dev/api/v1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/v1/, '')
+      }
+    }
+  }
 })

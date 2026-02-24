@@ -29,12 +29,42 @@ interface SystemMenuProps {
   initialTab?: 'profile' | 'quest' | 'bank';
 }
 
+import { exerciseService, type ExerciseDBItem } from '../services/exerciseService';
+
 export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenuProps) {
   const { isSoloLevelingMode } = useWorkout();
   const [activeTab, setActiveTab] = useState<'profile' | 'quest' | 'bank'>(initialTab);
 
+  // Preload MenuBank Data
+  const [apiExercises, setApiExercises] = useState<ExerciseDBItem[]>([]);
+  const [isLoadingBank, setIsLoadingBank] = useState(false);
+  const [bodyParts, setBodyParts] = useState<string[]>([]);
+  const [equipments, setEquipments] = useState<string[]>([]);
+  const [targetMuscles, setTargetMuscles] = useState<string[]>([]);
+
   useEffect(() => {
-    if (isOpen) setActiveTab(initialTab);
+    if (isOpen) {
+      setActiveTab(initialTab);
+      // Pre-fetch bank data so tab switch is instant
+      if (apiExercises.length === 0) {
+        setIsLoadingBank(true);
+        exerciseService.getExercises(0, 20).then(res => {
+          setApiExercises(res.data);
+          setIsLoadingBank(false);
+        }).catch(() => setIsLoadingBank(false));
+      }
+      if (bodyParts.length === 0) {
+        Promise.all([
+          exerciseService.getBodyParts(),
+          exerciseService.getEquipments(),
+          exerciseService.getTargetMuscles()
+        ]).then(([parts, equs, targets]) => {
+          setBodyParts(parts);
+          setEquipments(equs);
+          setTargetMuscles(targets);
+        }).catch(console.error);
+      }
+    }
   }, [isOpen, initialTab]);
 
   return (
@@ -75,11 +105,19 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
                   <div className="absolute bottom-0 right-0 w-full h-[3px] bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
                   <div className="absolute bottom-0 right-0 w-[3px] h-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
                 </div>
-                <MenuContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} isSoloLevelingMode={isSoloLevelingMode} />
+                <MenuContent 
+                  activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} 
+                  isSoloLevelingMode={isSoloLevelingMode}
+                  bankData={{ apiExercises, setApiExercises, isLoadingBank, setIsLoadingBank, bodyParts, equipments, targetMuscles }}
+                />
               </ElectricBorder>
             ) : (
               <div className="w-full h-full flex flex-col overflow-visible bg-[#0a0f18] rounded-2xl border border-white/10 shadow-2xl relative">
-                 <MenuContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} isSoloLevelingMode={isSoloLevelingMode} />
+                 <MenuContent 
+                    activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} 
+                    isSoloLevelingMode={isSoloLevelingMode}
+                    bankData={{ apiExercises, setApiExercises, isLoadingBank, setIsLoadingBank, bodyParts, equipments, targetMuscles }}
+                 />
               </div>
             )}
           </motion.div>
@@ -89,7 +127,7 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
   );
 }
 
-function MenuContent({ activeTab, setActiveTab, onClose, isSoloLevelingMode }: any) {
+function MenuContent({ activeTab, setActiveTab, onClose, isSoloLevelingMode, bankData }: any) {
   return (
     <div 
       className={cn(
@@ -153,7 +191,7 @@ function MenuContent({ activeTab, setActiveTab, onClose, isSoloLevelingMode }: a
                           isSoloLevelingMode ? "rounded-none" : "rounded-xl",
                           activeTab === tab.id 
                             ? isSoloLevelingMode
-                                ? "text-primary border-primary/50 bg-primary/5 shadow-[inset_0_0_15px_rgba(59,130,246,0.05)]" 
+                                ? "text-primary border-primary bg-primary/5" 
                                 : "text-primary border-white/5 bg-[#1e293b] shadow-md"
                             : "text-text-muted hover:text-white border-transparent"
                         )}
@@ -170,11 +208,9 @@ function MenuContent({ activeTab, setActiveTab, onClose, isSoloLevelingMode }: a
 
                 {/* Content Area */}
                 <div className="flex-1 overflow-y-auto px-4 pb-4 relative z-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                  <AnimatePresence mode="wait">
-                    {activeTab === 'profile' && <MenuProfile />}
-                    {activeTab === 'quest' && <MenuQuest onAddObjective={() => setActiveTab('bank')} />}
-                    {activeTab === 'bank' && <MenuBank onAssignObjective={() => setActiveTab('quest')} />}
-                  </AnimatePresence>
+                  <div className={activeTab === 'profile' ? 'block' : 'hidden'}><MenuProfile /></div>
+                  <div className={activeTab === 'quest' ? 'block' : 'hidden'}><MenuQuest onAddObjective={() => setActiveTab('bank')} /></div>
+                  <div className={activeTab === 'bank' ? 'block' : 'hidden'}><MenuBank onAssignObjective={() => setActiveTab('quest')} bankData={bankData} /></div>
                 </div>
                 
                 {/* Scanline Effect */}

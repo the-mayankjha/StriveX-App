@@ -7,30 +7,35 @@ import { exerciseService, type ExerciseDBItem } from '../../services/exerciseSer
 
 interface MenuBankProps {
   onAssignObjective: () => void;
+  bankData?: any;
 }
 
-export function MenuBank({ onAssignObjective }: MenuBankProps) {
+export function MenuBank({ onAssignObjective, bankData = {} }: MenuBankProps) {
   const { weeklyQuest, updateDailyQuest } = useWorkout();
   const today = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()], []);
   const dailyQuest = weeklyQuest[today] || { category: 'rest', exercises: [] };
 
+  const {
+    apiExercises = [],
+    setApiExercises = () => {},
+    isLoadingBank: isLoading = false,
+    setIsLoadingBank = () => {},
+    bodyParts = [],
+    equipments = [],
+    targetMuscles = []
+  } = bankData;
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [apiExercises, setApiExercises] = useState<ExerciseDBItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
   const [selectedEquipment, setSelectedEquipment] = useState<string | null>(null);
   const [selectedTargetMuscle, setSelectedTargetMuscle] = useState<string | null>(null);
   const [activeFilterTab, setActiveFilterTab] = useState<'bodyPart' | 'muscle' | 'equipment'>('bodyPart');
-  
-  const [bodyParts, setBodyParts] = useState<string[]>([]);
-  const [equipments, setEquipments] = useState<string[]>([]);
-  const [targetMuscles, setTargetMuscles] = useState<string[]>([]);
 
-  // Fetch Exercises
+  // Fetch Exercises based on local filters
   useEffect(() => {
     const fetchExercises = async () => {
-      setIsLoading(true);
+      setIsLoadingBank(true);
       try {
         let result;
         const activeFilters = [
@@ -51,13 +56,18 @@ export function MenuBank({ onAssignObjective }: MenuBankProps) {
         } else if (selectedTargetMuscle) {
           result = await exerciseService.getExercisesByTarget(selectedTargetMuscle);
         } else {
+          // If no local filters applied and we already preloaded, don't re-fetch here immediately
+          if (apiExercises.length > 0) {
+            setIsLoadingBank(false);
+            return;
+          }
           result = await exerciseService.getExercises(0, 20);
         }
         setApiExercises(result.data);
       } catch (err) {
         console.error('Error fetching exercises in slider:', err);
       } finally {
-        setIsLoading(false);
+        setIsLoadingBank(false);
       }
     };
 
@@ -65,33 +75,14 @@ export function MenuBank({ onAssignObjective }: MenuBankProps) {
     return () => clearTimeout(debounce);
   }, [searchQuery, selectedBodyPart, selectedEquipment, selectedTargetMuscle]);
 
-  // Fetch Filters
-  useEffect(() => {
-    if (bodyParts.length > 0 && equipments.length > 0 && targetMuscles.length > 0) return;
 
-    const fetchFilters = async () => {
-      try {
-        const [parts, equs, targets] = await Promise.all([
-          exerciseService.getBodyParts(),
-          exerciseService.getEquipments(),
-          exerciseService.getTargetMuscles()
-        ]);
-        setBodyParts(parts);
-        setEquipments(equs);
-        setTargetMuscles(targets);
-      } catch (err) {
-        console.error('Error fetching filters in slider:', err);
-      }
-    };
-    fetchFilters();
-  }, [bodyParts.length, equipments.length, targetMuscles.length]);
 
   return (
     <motion.div
       key="bank"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.1 }}
       className="space-y-6"
     >
       <div className="space-y-4">
@@ -142,7 +133,7 @@ export function MenuBank({ onAssignObjective }: MenuBankProps) {
               </div>
 
               <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto custom-scrollbar pr-2">
-                {activeFilterTab === 'bodyPart' && bodyParts.map(part => (
+                {activeFilterTab === 'bodyPart' && bodyParts.map((part: string) => (
                   <button
                     key={part}
                     onClick={() => setSelectedBodyPart(prev => prev === part ? null : part)}
@@ -154,7 +145,7 @@ export function MenuBank({ onAssignObjective }: MenuBankProps) {
                     {part}
                   </button>
                 ))}
-                {activeFilterTab === 'muscle' && targetMuscles.map(m => (
+                {activeFilterTab === 'muscle' && targetMuscles.map((m: string) => (
                   <button
                     key={m}
                     onClick={() => setSelectedTargetMuscle(prev => prev === m ? null : m)}
@@ -166,7 +157,7 @@ export function MenuBank({ onAssignObjective }: MenuBankProps) {
                     {m}
                   </button>
                 ))}
-                {activeFilterTab === 'equipment' && equipments.map(e => (
+                {activeFilterTab === 'equipment' && equipments.map((e: string) => (
                   <button
                     key={e}
                     onClick={() => setSelectedEquipment(prev => prev === e ? null : e)}
@@ -190,7 +181,7 @@ export function MenuBank({ onAssignObjective }: MenuBankProps) {
              <Loader2 size={32} className="text-primary animate-spin" />
              <span className="text-[10px] font-black uppercase text-primary animate-pulse tracking-widest">Scanning Repository...</span>
            </div>
-         ) : apiExercises.map(ex => (
+         ) : apiExercises.map((ex: ExerciseDBItem) => (
            <button
              key={ex.exerciseId}
              onClick={() => {
