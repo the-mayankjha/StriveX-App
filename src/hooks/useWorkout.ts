@@ -85,14 +85,16 @@ export function useWorkout() {
 
   // Reset progress if date changes
   const todayDate = new Date().toISOString().split('T')[0];
-  if (dailyProgress.date !== todayDate) {
-    setDailyProgress({
-      date: todayDate,
-      statuses: {},
-      actualPerformance: {},
-      rewardsClaimed: false
-    });
-  }
+  useEffect(() => {
+    if (dailyProgress.date !== todayDate) {
+      setDailyProgress({
+        date: todayDate,
+        statuses: {},
+        actualPerformance: {},
+        rewardsClaimed: false
+      });
+    }
+  }, [dailyProgress.date, todayDate, setDailyProgress]);
 
   const updateDailyQuest = useCallback((day: string, quest: DailyQuest) => {
     setWeeklyQuest(prev => ({ ...prev, [day]: quest }));

@@ -37,7 +37,8 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
         confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
       }, 250);
 
-      const audio = new Audio(type === 'level-up' ? 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3' : 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+      const audioUrl = type === 'level-up' ? '/assets/audio/slide.wav' : '/assets/audio/click.wav';
+      const audio = new Audio(audioUrl);
       audio.volume = 0.5;
       audio.play().catch(e => console.log('Audio play blocked:', e));
 
