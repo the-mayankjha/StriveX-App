@@ -1,17 +1,29 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, Dumbbell, Plus, Loader2 } from 'lucide-react';
+import { Search, SlidersHorizontal, Dumbbell, Plus, Loader2, CheckCheck } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useWorkout, type QuestExercise } from '../../hooks/useWorkout';
 import { exerciseService, type ExerciseDBItem } from '../../services/exerciseService';
 
+const CornerAccents = () => (
+  <>
+    <div className="absolute top-0 left-0 w-1.5 h-[1.5px] bg-primary shadow-glow-blue" />
+    <div className="absolute top-0 left-0 w-[1.5px] h-1.5 bg-primary shadow-glow-blue" />
+    <div className="absolute top-0 right-0 w-1.5 h-[1.5px] bg-primary shadow-glow-blue" />
+    <div className="absolute top-0 right-0 w-[1.5px] h-1.5 bg-primary shadow-glow-blue" />
+    <div className="absolute bottom-0 left-0 w-1.5 h-[1.5px] bg-primary shadow-glow-blue" />
+    <div className="absolute bottom-0 left-0 w-[1.5px] h-1.5 bg-primary shadow-glow-blue" />
+    <div className="absolute bottom-0 right-0 w-1.5 h-[1.5px] bg-primary shadow-glow-blue" />
+    <div className="absolute bottom-0 right-0 w-[1.5px] h-1.5 bg-primary shadow-glow-blue" />
+  </>
+);
+
 interface MenuBankProps {
-  onAssignObjective: () => void;
   bankData?: any;
 }
 
-export function MenuBank({ onAssignObjective, bankData = {} }: MenuBankProps) {
-  const { weeklyQuest, updateDailyQuest } = useWorkout();
+export function MenuBank({ bankData = {} }: MenuBankProps) {
+  const { weeklyQuest, updateDailyQuest, isSoloLevelingMode } = useWorkout();
   const today = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()], []);
   const dailyQuest = weeklyQuest[today] || { category: 'rest', exercises: [] };
 
@@ -83,25 +95,37 @@ export function MenuBank({ onAssignObjective, bankData = {} }: MenuBankProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.1 }}
-      className="space-y-6"
+      className="space-y-6 pt-4"
     >
       <div className="space-y-4">
         <div className="relative group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors" size={18} />
           <input 
             type="text"
+            id="menu-bank-search"
+            name="menu-bank-search"
             placeholder="Summon Exercise..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#1a1c21] border border-white/5 rounded-[1.2rem] pl-12 pr-4 py-4 text-sm focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-text-muted/30 text-white"
+            className={cn(
+              "w-full border border-white/5 pl-12 pr-4 py-4 text-sm focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-text-muted/30 text-white",
+              isSoloLevelingMode ? "bg-transparent rounded-[1.2rem]" : "bg-[#1a1c21] rounded-2xl"
+            )}
           />
           <button 
             onClick={() => setIsFilterOpen(!isFilterOpen)}
             className={cn(
-              "absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-[1rem] border transition-all",
-              isFilterOpen || selectedBodyPart || selectedEquipment || selectedTargetMuscle
-                ? "bg-primary/10 border-primary text-primary" 
-                : "bg-surfaceHighlight border-white/5 text-text-muted hover:text-white"
+              "absolute right-2 top-1/2 -translate-y-1/2 p-2.5 transition-all",
+              isSoloLevelingMode
+                ? (isFilterOpen || selectedBodyPart || selectedEquipment || selectedTargetMuscle
+                    ? "text-primary"
+                    : "text-text-muted hover:text-primary")
+                : cn(
+                    "rounded-[1rem] border",
+                    isFilterOpen || selectedBodyPart || selectedEquipment || selectedTargetMuscle
+                      ? "bg-primary/10 border-primary text-primary"
+                      : "bg-surfaceHighlight border-white/5 text-text-muted hover:text-white"
+                  )
             )}
           >
             <SlidersHorizontal size={16} />
@@ -117,32 +141,40 @@ export function MenuBank({ onAssignObjective, bankData = {} }: MenuBankProps) {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden space-y-4 border-b border-white/5 pb-4"
             >
-              <div className="flex p-1 bg-[#1a1c21] rounded-[1rem] border border-white/5 gap-1">
+              <div className={cn("flex p-1 gap-1 mx-1", isSoloLevelingMode ? "" : "border border-white/5 bg-[#1a1c21] rounded-[1rem]")}>
                 {['bodyPart', 'muscle', 'equipment'].map((fTab) => (
                   <button
                     key={fTab}
                     onClick={() => setActiveFilterTab(fTab as any)}
                     className={cn(
-                      "flex-1 py-2 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all",
-                      activeFilterTab === fTab ? "bg-primary text-white" : "text-text-muted hover:bg-white/5"
+                      "flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all relative",
+                      isSoloLevelingMode ? "rounded-none" : "rounded-xl",
+                      activeFilterTab === fTab 
+                        ? isSoloLevelingMode ? "bg-primary/5 text-primary" : "bg-primary text-white shadow-md" 
+                        : isSoloLevelingMode ? "bg-white/5 text-text-muted hover:bg-white/10" : "text-text-muted hover:text-white"
                     )}
                   >
                     {fTab.replace('Part', '')}
+                    {isSoloLevelingMode && activeFilterTab === fTab && <CornerAccents />}
                   </button>
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto custom-scrollbar pr-2">
+              <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto custom-scrollbar pr-2 mt-4 px-1">
                 {activeFilterTab === 'bodyPart' && bodyParts.map((part: string) => (
                   <button
                     key={part}
                     onClick={() => setSelectedBodyPart(prev => prev === part ? null : part)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-[9px] font-bold transition-all border uppercase",
-                      selectedBodyPart === part ? "bg-primary border-primary text-white" : "bg-[#1a1c21] border-white/5 text-text-muted"
+                      "px-4 py-2 text-[10px] font-bold transition-all uppercase relative",
+                      isSoloLevelingMode ? "rounded-none border-transparent" : "rounded-full border",
+                      selectedBodyPart === part 
+                        ? isSoloLevelingMode ? "bg-primary/5 text-primary" : "bg-primary border-primary text-white" 
+                        : isSoloLevelingMode ? "bg-white/5 text-text-muted hover:bg-white/10" : "bg-[#1a1c21] border-white/5 text-text-muted hover:text-white"
                     )}
                   >
                     {part}
+                    {selectedBodyPart === part && isSoloLevelingMode && <CornerAccents />}
                   </button>
                 ))}
                 {activeFilterTab === 'muscle' && targetMuscles.map((m: string) => (
@@ -150,11 +182,15 @@ export function MenuBank({ onAssignObjective, bankData = {} }: MenuBankProps) {
                     key={m}
                     onClick={() => setSelectedTargetMuscle(prev => prev === m ? null : m)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-[9px] font-bold transition-all border uppercase",
-                      selectedTargetMuscle === m ? "bg-primary border-primary text-white" : "bg-[#1a1c21] border-white/5 text-text-muted"
+                      "px-4 py-2 text-[10px] font-bold transition-all uppercase relative",
+                      isSoloLevelingMode ? "rounded-none border-transparent" : "rounded-full border",
+                      selectedTargetMuscle === m 
+                        ? isSoloLevelingMode ? "bg-primary/5 text-primary" : "bg-primary border-primary text-white" 
+                        : isSoloLevelingMode ? "bg-white/5 text-text-muted hover:bg-white/10" : "bg-[#1a1c21] border-white/5 text-text-muted hover:text-white"
                     )}
                   >
                     {m}
+                    {selectedTargetMuscle === m && isSoloLevelingMode && <CornerAccents />}
                   </button>
                 ))}
                 {activeFilterTab === 'equipment' && equipments.map((e: string) => (
@@ -162,11 +198,15 @@ export function MenuBank({ onAssignObjective, bankData = {} }: MenuBankProps) {
                     key={e}
                     onClick={() => setSelectedEquipment(prev => prev === e ? null : e)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-[9px] font-bold transition-all border uppercase",
-                      selectedEquipment === e ? "bg-primary border-primary text-white" : "bg-[#1a1c21] border-white/5 text-text-muted"
+                      "px-4 py-2 text-[10px] font-bold transition-all uppercase relative",
+                      isSoloLevelingMode ? "rounded-none border-transparent" : "rounded-full border",
+                      selectedEquipment === e 
+                        ? isSoloLevelingMode ? "bg-primary/5 text-primary" : "bg-primary border-primary text-white" 
+                        : isSoloLevelingMode ? "bg-white/5 text-text-muted hover:bg-white/10" : "bg-[#1a1c21] border-white/5 text-text-muted hover:text-white"
                     )}
                   >
                     {e}
+                    {selectedEquipment === e && isSoloLevelingMode && <CornerAccents />}
                   </button>
                 ))}
               </div>
@@ -185,34 +225,53 @@ export function MenuBank({ onAssignObjective, bankData = {} }: MenuBankProps) {
            <button
              key={ex.exerciseId}
              onClick={() => {
-               const newEx: QuestExercise = {
-                 id: `${ex.exerciseId}_${Date.now()}`,
-                 name: ex.name,
-                 sets: 3,
-                 reps: 10,
-                 gifUrl: ex.gifUrl,
-                 target: ex.targetMuscles[0],
-                 bodyPart: ex.bodyParts[0]
-               };
-               updateDailyQuest(today, { ...dailyQuest, exercises: [...dailyQuest.exercises, newEx] });
-               onAssignObjective();
+               const isAlreadyAdded = dailyQuest.exercises.some(e => e.name === ex.name);
+               if (isAlreadyAdded) {
+                 const newExercises = dailyQuest.exercises.filter(e => e.name !== ex.name);
+                 updateDailyQuest(today, { ...dailyQuest, exercises: newExercises });
+               } else {
+                 const newEx: QuestExercise = {
+                   id: `${ex.exerciseId}_${Date.now()}`,
+                   name: ex.name,
+                   sets: 3,
+                   reps: 10,
+                   gifUrl: ex.gifUrl,
+                   target: ex.targetMuscles[0] || 'Full Body',
+                   bodyPart: ex.bodyParts[0] || 'Core'
+                 };
+                 updateDailyQuest(today, { ...dailyQuest, exercises: [...dailyQuest.exercises, newEx] });
+               }
              }}
-             className="w-full p-4 rounded-[1.2rem] bg-[#1a1c21] border border-white/5 flex items-center gap-4 hover:border-primary/50 transition-all group text-left"
+             className={cn(
+               "w-full p-4 border flex items-center gap-4 transition-all group text-left relative",
+               isSoloLevelingMode 
+                 ? "rounded-xl bg-[#16171f] border-[#252836] hover:border-primary/30" 
+                 : "rounded-[1.2rem] bg-[#1a1c21] border-white/5 hover:border-primary/50"
+             )}
            >
-             <div className="w-14 h-14 shrink-0 rounded-xl bg-surfaceHighlight overflow-hidden flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+             <div className={cn(
+               "w-14 h-14 shrink-0 overflow-hidden flex items-center justify-center border group-hover:scale-110 transition-transform relative z-10",
+               isSoloLevelingMode ? "rounded-lg bg-white p-1 border-transparent" : "rounded-xl bg-surfaceHighlight border-white/10"
+             )}>
                {ex.gifUrl ? (
-                 <img src={ex.gifUrl} alt={ex.name} className="w-full h-full object-cover" />
+                 <img src={ex.gifUrl} alt={ex.name} className={cn("w-full h-full object-cover", isSoloLevelingMode && "rounded-lg")} />
                ) : (
                  <Dumbbell size={18} className="text-white/20" />
                )}
              </div>
-             <div className="flex-1 min-w-0">
-               <h4 className="text-xs font-black text-white uppercase truncate">{ex.name}</h4>
-               <p className="text-[9px] font-black text-text-muted uppercase tracking-tighter">
+             <div className="flex-1 min-w-0 relative z-10">
+               <h4 className={cn("truncate uppercase", isSoloLevelingMode ? "font-black text-[11px] text-white" : "font-black text-xs text-white")}>{ex.name}</h4>
+               <p className={cn("uppercase tracking-tighter opacity-80", isSoloLevelingMode ? "text-[9px] font-bold text-[#6b7280] tracking-wider mt-1" : "text-[9px] font-black text-text-muted")}>
                  {ex.bodyParts[0]} • {ex.targetMuscles[0]}
                </p>
              </div>
-             <Plus size={16} className="text-primary opacity-40 group-hover:opacity-100 transition-opacity" />
+             <div className="relative z-10">
+               {dailyQuest.exercises.some(e => e.name === ex.name) ? (
+                 <CheckCheck size={16} strokeWidth={isSoloLevelingMode ? 2.5 : 2} className={cn(isSoloLevelingMode ? "text-[#3b82f6]" : "text-primary")} />
+               ) : (
+                 <Plus size={16} strokeWidth={isSoloLevelingMode ? 2.5 : 2} className={cn(isSoloLevelingMode ? "text-[#3b82f6] opacity-60" : "text-primary opacity-40", "group-hover:opacity-100 transition-opacity")} />
+               )}
+             </div>
            </button>
          ))}
       </div>

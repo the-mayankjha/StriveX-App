@@ -1,16 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
-import { Minus, Plus, Dumbbell, Moon, Droplets, Trash2, Zap } from 'lucide-react';
+import { Minus, Plus, Dumbbell, Moon, Droplets, Trash2, Zap, Search, Loader2, SlidersHorizontal, CheckCheck } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useWorkout, type QuestExercise } from '../hooks/useWorkout';
 import { BottomSheet } from '../components/BottomSheet';
 import { exerciseService, type ExerciseDBItem } from '../services/exerciseService';
-import { Search, Loader2, SlidersHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SaveNotificationPopup } from '../components/SaveNotificationPopup';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const CornerAccents = () => (
+  <>
+    <div className="absolute top-0 left-0 w-1.5 h-[1.5px] bg-primary shadow-glow-blue" />
+    <div className="absolute top-0 left-0 w-[1.5px] h-1.5 bg-primary shadow-glow-blue" />
+    <div className="absolute top-0 right-0 w-1.5 h-[1.5px] bg-primary shadow-glow-blue" />
+    <div className="absolute top-0 right-0 w-[1.5px] h-1.5 bg-primary shadow-glow-blue" />
+    <div className="absolute bottom-0 left-0 w-1.5 h-[1.5px] bg-primary shadow-glow-blue" />
+    <div className="absolute bottom-0 left-0 w-[1.5px] h-1.5 bg-primary shadow-glow-blue" />
+    <div className="absolute bottom-0 right-0 w-1.5 h-[1.5px] bg-primary shadow-glow-blue" />
+    <div className="absolute bottom-0 right-0 w-[1.5px] h-1.5 bg-primary shadow-glow-blue" />
+  </>
+);
 const CATEGORIES = [
   { id: 'push', label: 'Push', icon: Dumbbell },
   { id: 'pull', label: 'Pull', icon: Dumbbell },
@@ -23,7 +35,7 @@ const CATEGORIES = [
 ];
 
 export function QuestSystem() {
-  const { weeklyQuest, updateDailyQuest } = useWorkout();
+  const { weeklyQuest, updateDailyQuest, isSoloLevelingMode } = useWorkout();
   const [activeDay, setActiveDay] = useState(DAYS[new Date().getDay()]);
   const [selectedCategory, setSelectedCategory] = useState('strength');
   const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -123,18 +135,22 @@ export function QuestSystem() {
   };
 
   const addExercise = (exercise: ExerciseDBItem) => {
-    const newEx: QuestExercise = {
-      id: `${exercise.exerciseId}_${Date.now()}`,
-      name: exercise.name,
-      sets: 3,
-      reps: 10,
-      gifUrl: exercise.gifUrl,
-      target: exercise.targetMuscles[0],
-      bodyPart: exercise.bodyParts[0]
-    };
-    setExercises(prev => [...prev, newEx]);
-    setIsBottomSheetOpen(false);
-    setSearchQuery('');
+    const isAlreadyAdded = exercises.some(e => e.name === exercise.name);
+
+    if (isAlreadyAdded) {
+      setExercises(prev => prev.filter(e => e.name !== exercise.name));
+    } else {
+      const newEx: QuestExercise = {
+        id: `${exercise.exerciseId}_${Date.now()}`,
+        name: exercise.name,
+        sets: 3,
+        reps: 10,
+        gifUrl: exercise.gifUrl,
+        target: exercise.targetMuscles[0],
+        bodyPart: exercise.bodyParts[0]
+      };
+      setExercises(prev => [...prev, newEx]);
+    }
   };
 
   const removeExercise = (id: string) => {
@@ -403,16 +419,26 @@ export function QuestSystem() {
                 placeholder="Search exercise..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#111218] border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
+                className={cn(
+                  "w-full border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-sm focus:ring-1 focus:ring-primary outline-none transition-all text-white",
+                  isSoloLevelingMode ? "bg-transparent" : "bg-surfaceHighlight"
+                )}
               />
             </div>
             <button 
               onClick={() => setIsFilterOpen(!isFilterOpen)}
               className={cn(
-                "p-4 rounded-2xl border transition-all flex items-center justify-center",
-                isFilterOpen || selectedBodyPart || selectedEquipment || selectedTargetMuscle
-                  ? "bg-primary/10 border-primary text-primary" 
-                  : "bg-surfaceHighlight border-white/5 text-text-muted hover:text-white"
+                "p-4 transition-all flex items-center justify-center",
+                isSoloLevelingMode
+                  ? (isFilterOpen || selectedBodyPart || selectedEquipment || selectedTargetMuscle
+                      ? "text-primary"
+                      : "text-text-muted hover:text-primary")
+                  : cn(
+                      "rounded-2xl border",
+                      isFilterOpen || selectedBodyPart || selectedEquipment || selectedTargetMuscle
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "bg-surfaceHighlight border-white/5 text-text-muted hover:text-white"
+                    )
               )}
             >
               <SlidersHorizontal size={18} />
@@ -428,17 +454,21 @@ export function QuestSystem() {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden space-y-4 border-b border-white/5 pb-4"
               >
-                <div className="flex p-1 bg-[#111218] rounded-2xl border border-white/5 gap-1 mx-1">
+              <div className={cn("flex p-1 gap-1 mx-1", isSoloLevelingMode ? "border-transparent bg-transparent" : "border border-white/5 bg-surfaceHighlight rounded-[1rem]")}>
                   {['bodyPart', 'muscle', 'equipment'].map((fTab) => (
                     <button
                       key={fTab}
                       onClick={() => setActiveFilterTab(fTab as any)}
                       className={cn(
-                        "flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                        activeFilterTab === fTab ? "bg-[#3b82f6] text-white shadow-md" : "text-text-muted hover:text-white"
+                        "flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all relative",
+                        isSoloLevelingMode ? "rounded-none" : "rounded-xl",
+                        activeFilterTab === fTab 
+                          ? isSoloLevelingMode ? "bg-primary/5 text-primary" : "bg-primary text-white shadow-md" 
+                          : isSoloLevelingMode ? "bg-white/5 text-text-muted hover:bg-white/10" : "text-text-muted hover:text-white"
                       )}
                     >
                       {fTab.replace('Part', '')}
+                      {isSoloLevelingMode && activeFilterTab === fTab && <CornerAccents />}
                     </button>
                   ))}
                 </div>
@@ -449,11 +479,15 @@ export function QuestSystem() {
                       key={part}
                       onClick={() => setSelectedBodyPart(prev => prev === part ? null : part)}
                       className={cn(
-                        "px-4 py-2 rounded-full text-[10px] font-bold transition-all border uppercase",
-                        selectedBodyPart === part ? "bg-[#3b82f6] border-[#3b82f6] text-white" : "bg-transparent border-white/10 text-text-muted hover:text-white"
+                        "px-4 py-2 text-[10px] font-bold transition-all uppercase relative",
+                        isSoloLevelingMode ? "rounded-none border-transparent" : "rounded-full border",
+                        selectedBodyPart === part 
+                          ? isSoloLevelingMode ? "bg-primary/5 text-primary" : "bg-primary border-primary text-white" 
+                          : isSoloLevelingMode ? "bg-white/5 text-text-muted hover:bg-white/10" : "bg-transparent border-white/10 text-text-muted hover:text-white"
                       )}
                     >
                       {part}
+                      {selectedBodyPart === part && isSoloLevelingMode && <CornerAccents />}
                     </button>
                   ))}
                   {activeFilterTab === 'muscle' && targetMuscles.map((m: string) => (
@@ -461,11 +495,15 @@ export function QuestSystem() {
                       key={m}
                       onClick={() => setSelectedTargetMuscle(prev => prev === m ? null : m)}
                       className={cn(
-                        "px-4 py-2 rounded-full text-[10px] font-bold transition-all border uppercase",
-                        selectedTargetMuscle === m ? "bg-[#3b82f6] border-[#3b82f6] text-white" : "bg-transparent border-white/10 text-text-muted hover:text-white"
+                        "px-4 py-2 text-[10px] font-bold transition-all uppercase relative",
+                        isSoloLevelingMode ? "rounded-none border-transparent" : "rounded-full border",
+                        selectedTargetMuscle === m 
+                          ? isSoloLevelingMode ? "bg-primary/5 text-primary" : "bg-primary border-primary text-white" 
+                          : isSoloLevelingMode ? "bg-white/5 text-text-muted hover:bg-white/10" : "bg-transparent border-white/10 text-text-muted hover:text-white"
                       )}
                     >
                       {m}
+                      {selectedTargetMuscle === m && isSoloLevelingMode && <CornerAccents />}
                     </button>
                   ))}
                   {activeFilterTab === 'equipment' && equipments.map((e: string) => (
@@ -473,11 +511,15 @@ export function QuestSystem() {
                       key={e}
                       onClick={() => setSelectedEquipment(prev => prev === e ? null : e)}
                       className={cn(
-                        "px-4 py-2 rounded-full text-[10px] font-bold transition-all border uppercase",
-                        selectedEquipment === e ? "bg-[#3b82f6] border-[#3b82f6] text-white" : "bg-transparent border-white/10 text-text-muted hover:text-white"
+                        "px-4 py-2 text-[10px] font-bold transition-all uppercase relative",
+                        isSoloLevelingMode ? "rounded-none border-transparent" : "rounded-full border",
+                        selectedEquipment === e 
+                          ? isSoloLevelingMode ? "bg-primary/5 text-primary" : "bg-primary border-primary text-white" 
+                          : isSoloLevelingMode ? "bg-white/5 text-text-muted hover:bg-white/10" : "bg-transparent border-white/10 text-text-muted hover:text-white"
                       )}
                     >
                       {e}
+                      {selectedEquipment === e && isSoloLevelingMode && <CornerAccents />}
                     </button>
                   ))}
                 </div>
@@ -496,24 +538,45 @@ export function QuestSystem() {
                 <button
                   key={ex.exerciseId}
                   onClick={() => addExercise(ex)}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-surfaceHighlight border border-white/5 hover:border-primary/50 hover:bg-white/5 transition-all text-left group"
+                  className={cn(
+                    "flex items-center gap-4 p-4 border transition-all text-left group",
+                    isSoloLevelingMode 
+                      ? "rounded-xl bg-[#16171f] border-[#252836] hover:border-primary/30" 
+                      : "rounded-2xl bg-surfaceHighlight border-white/5 hover:border-primary/50 hover:bg-white/5"
+                  )}
                 >
-                  <div className="w-20 h-20 shrink-0 rounded-xl bg-background overflow-hidden flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                  <div className={cn(
+                    "w-16 h-16 shrink-0 overflow-hidden flex items-center justify-center text-primary group-hover:scale-105 transition-transform",
+                    isSoloLevelingMode ? "rounded-lg bg-white p-1" : "rounded-xl bg-background border border-white/5 w-20 h-20"
+                  )}>
                     {ex.gifUrl ? (
-                      <img src={ex.gifUrl} alt={ex.name} className="w-full h-full object-cover" />
+                      <img src={ex.gifUrl} alt={ex.name} className={cn("w-full h-full object-cover", isSoloLevelingMode && "rounded-lg")} />
                     ) : (
                       <Dumbbell size={24} />
                     )}
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-white text-sm line-clamp-1">{ex.name}</h4>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {ex.targetMuscles.slice(0, 2).map(m => (
-                        <span key={m} className="text-[9px] px-1.5 py-0.5 rounded-md bg-white/5 text-text-muted font-bold uppercase">
-                          {m}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="flex-1 min-w-0 relative z-10">
+                    <h4 className={cn("text-white line-clamp-1 truncate uppercase", isSoloLevelingMode ? "font-black text-[11px]" : "font-bold text-sm")}>{ex.name}</h4>
+                    {isSoloLevelingMode ? (
+                      <p className="text-[9px] font-bold text-[#6b7280] uppercase mt-1 tracking-wider">
+                        {ex.bodyParts[0]} • {ex.targetMuscles[0]}
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {ex.targetMuscles.slice(0, 2).map(m => (
+                          <span key={m} className="text-[9px] px-1.5 py-0.5 rounded-md bg-white/5 text-text-muted font-bold uppercase">
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative z-10">
+                    {exercises.some(e => e.name === ex.name) ? (
+                      <CheckCheck size={16} strokeWidth={isSoloLevelingMode ? 2.5 : 2} className={cn(isSoloLevelingMode ? "text-[#3b82f6]" : "text-primary")} />
+                    ) : (
+                      <Plus size={16} strokeWidth={isSoloLevelingMode ? 2.5 : 2} className={cn(isSoloLevelingMode ? "text-[#3b82f6] opacity-60" : "text-primary opacity-40", "group-hover:opacity-100 transition-opacity")} />
+                    )}
                   </div>
                 </button>
               ))

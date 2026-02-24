@@ -119,7 +119,7 @@ export function SideNavBar({ isOpen, onClose, initialTab = 'profile' }: SideNavB
               <AnimatePresence mode="wait">
                 {activeTab === 'profile' && <MenuProfile />}
                 {activeTab === 'quest' && <MenuQuest onAddObjective={() => setActiveTab('bank')} />}
-                {activeTab === 'bank' && <MenuBank onAssignObjective={() => setActiveTab('quest')} />}
+                {activeTab === 'bank' && <MenuBank />}
               </AnimatePresence>
             </div>
           </motion.div>

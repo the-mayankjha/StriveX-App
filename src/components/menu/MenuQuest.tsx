@@ -105,30 +105,42 @@ export function MenuQuest({ onAddObjective }: MenuQuestProps) {
            </div>
            
            <div className={cn(
-             "relative flex flex-col gap-3",
-             isSoloLevelingMode ? "p-3 bg-[#0c1424] border border-primary/10 rounded-none" : "pt-2 bg-transparent gap-4"
+             "relative flex flex-col",
+             isSoloLevelingMode ? "gap-2 rounded-none mt-2" : "pt-2 bg-transparent gap-4"
            )}>
-               {isSoloLevelingMode && <CornerAccents />}
                {dailyQuest.exercises.length > 0 ? (
                  dailyQuest.exercises.map((ex, idx) => {
                    const isDone = dailyProgress.statuses[ex.id] === 'completed';
                    const isSkipped = dailyProgress.statuses[ex.id] === 'skipped';
                    
                    return (
-                     <div key={ex.id} className={cn("relative", !isSoloLevelingMode && "bg-[#18191e] rounded-[1.5rem] p-4")}>
+                     <div 
+                       key={ex.id} 
+                       className={cn(
+                         "relative transition-all group", 
+                         isSoloLevelingMode 
+                           ? "p-4 border border-transparent hover:bg-primary/5 hover:border-primary/20" 
+                           : "bg-[#18191e] rounded-[1.5rem] p-4"
+                       )}
+                     >
+                       {isSoloLevelingMode && (
+                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300">
+                           <CornerAccents />
+                         </div>
+                       )}
                        {isSoloLevelingMode ? (
-                         <div className="flex flex-wrap items-center justify-between gap-3">
+                         <div className="flex flex-wrap items-center justify-between gap-3 relative z-10">
                            <div className="flex gap-4 flex-1 min-w-[150px] items-center">
                              <div className={cn(
                                "w-10 h-10 shrink-0 flex items-center justify-center transition-colors border relative rounded-none",
                                isDone ? "text-primary bg-primary/10 border-primary/20" : 
                                isSkipped ? "text-red-500 bg-red-500/10 border-red-500/20" :
-                               "bg-background/50 text-text-muted border-white/5"
+                               "bg-background/50 text-text-muted border-white/5 group-hover:border-primary/30 group-hover:bg-primary/5"
                              )}>
-                               <Sword size={16} />
+                               <Sword size={16} className="transition-colors group-hover:text-primary" />
                              </div>
                              <div className="min-w-0">
-                               <h5 className={cn("text-[10px] font-black uppercase tracking-wide truncate mt-1", isDone ? "text-primary" : "text-white")}>
+                               <h5 className={cn("text-[10px] font-black uppercase tracking-wide truncate mt-1 transition-colors", isDone ? "text-primary" : "text-white group-hover:text-primary")}>
                                  {ex.name}
                                </h5>
                                <span className="text-[8px] font-black text-text-muted uppercase tracking-tighter bg-white/5 py-0.5 mt-1 inline-block border border-white/5 px-1.5 rounded-none">
@@ -142,15 +154,15 @@ export function MenuQuest({ onAddObjective }: MenuQuestProps) {
                                <span className="text-[8px] font-black text-text-muted uppercase tracking-wider">Intensity</span>
                                <span className="text-[10px] font-black text-white bg-background/50 px-2 py-0.5 border border-white/5 rounded-none">{ex.sets}x{ex.reps}</span>
                              </div>
-                             <button 
-                               onClick={() => {
-                                 const newExercises = dailyQuest.exercises.filter(e => e.id !== ex.id);
-                                 updateDailyQuest(today, { ...dailyQuest, exercises: newExercises });
-                               }}
-                               className="p-2 flex-shrink-0 bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all ml-1 border border-red-500/20 rounded-none"
-                             >
-                               <Trash2 size={14} />
-                             </button>
+                              <button 
+                                onClick={() => {
+                                  const newExercises = dailyQuest.exercises.filter(e => e.id !== ex.id);
+                                  updateDailyQuest(today, { ...dailyQuest, exercises: newExercises });
+                                }}
+                                className="p-2 flex-shrink-0 bg-transparent text-red-500 hover:text-red-400 opacity-70 hover:opacity-100 transition-all ml-1"
+                              >
+                                <Trash2 size={14} />
+                              </button>
                            </div>
                          </div>
                        ) : (

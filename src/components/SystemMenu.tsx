@@ -187,18 +187,24 @@ function MenuContent({ activeTab, setActiveTab, onClose, isSoloLevelingMode, ban
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
                         className={cn(
-                          "flex-1 flex flex-col items-center py-2 gap-1 transition-all relative border",
-                          isSoloLevelingMode ? "rounded-none" : "rounded-xl",
+                          "flex-1 flex flex-col items-center py-2 gap-1 transition-all relative border group",
+                          isSoloLevelingMode ? "rounded-none border-transparent hover:bg-primary/5" : "rounded-xl",
                           activeTab === tab.id 
                             ? isSoloLevelingMode
-                                ? "text-primary border-primary bg-primary/5" 
+                                ? "text-primary" 
                                 : "text-primary border-white/5 bg-[#1e293b] shadow-md"
-                            : "text-text-muted hover:text-white border-transparent"
+                            : isSoloLevelingMode
+                                ? "text-text-muted hover:text-primary"
+                                : "text-text-muted hover:text-white border-transparent"
                         )}
                       >
-                        <tab.icon size={14} className={activeTab === tab.id && isSoloLevelingMode ? "animate-pulse" : ""} />
-                        <span className="text-[9px] font-black uppercase tracking-widest">{tab.label}</span>
-                        {activeTab === tab.id && isSoloLevelingMode && <CornerAccents />}
+                        {isSoloLevelingMode && (
+                          <div className={cn("absolute inset-0 pointer-events-none transition-opacity duration-300", activeTab === tab.id ? "opacity-100" : "opacity-0 group-hover:opacity-100")}>
+                            <CornerAccents />
+                          </div>
+                        )}
+                        <tab.icon size={14} className={cn("relative z-10 transition-colors", activeTab === tab.id && isSoloLevelingMode ? "animate-pulse" : "")} />
+                        <span className="text-[9px] font-black uppercase tracking-widest relative z-10">{tab.label}</span>
                       </button>
                     ))}
                   </div>
@@ -210,7 +216,7 @@ function MenuContent({ activeTab, setActiveTab, onClose, isSoloLevelingMode, ban
                 <div className="flex-1 overflow-y-auto px-4 pb-4 relative z-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                   <div className={activeTab === 'profile' ? 'block' : 'hidden'}><MenuProfile /></div>
                   <div className={activeTab === 'quest' ? 'block' : 'hidden'}><MenuQuest onAddObjective={() => setActiveTab('bank')} /></div>
-                  <div className={activeTab === 'bank' ? 'block' : 'hidden'}><MenuBank onAssignObjective={() => setActiveTab('quest')} bankData={bankData} /></div>
+                  <div className={activeTab === 'bank' ? 'block' : 'hidden'}><MenuBank bankData={bankData} /></div>
                 </div>
                 
                 {/* Scanline Effect */}
