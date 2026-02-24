@@ -46,31 +46,70 @@ export function MenuProfile() {
         {isSoloLevelingMode && <SoloHeader title="Personal Info" />}
         <div className={cn(
           "flex items-center gap-4 p-4 border relative overflow-hidden cursor-default",
-          isSoloLevelingMode ? "bg-[#0b1220] border-primary/20 rounded-sm shadow-[inset_0_0_20px_rgba(59,130,246,0.02)]" : "bg-[#1a1c21] border-white/5 rounded-[1.2rem]"
+          isSoloLevelingMode ? "bg-transparent border-white/5 rounded-none" : "bg-[#1a1c21] border-white/5 rounded-[1.2rem]"
         )}>
-          <div className={cn(
-            "w-16 h-16 shrink-0 overflow-hidden border border-white/10 bg-surfaceHighlight",
-            isSoloLevelingMode ? "rounded-sm" : "rounded-xl shadow-lg"
-          )}>
-            {playerStats.avatarUrl ? (
-              <img src={playerStats.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-tr from-primary to-blue-600 flex items-center justify-center text-xl font-black text-white">
-                {playerStats.level}
+          <div className="relative mb-1 flex justify-center pt-4 shrink-0 sm:ml-2">
+            {/* Level Tag (Solo Mode Specific) - Positioned ABOVE avatar */}
+            {isSoloLevelingMode && (
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 w-max">
+                <div 
+                  className="bg-surfaceHighlight border border-primary/60 px-3 py-0.5 shadow-glow-blue/40 flex items-center justify-center min-w-[60px]"
+                  style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 20%)' }}
+                >
+                  <span className="text-[10px] font-black tracking-[0.2em] text-primary whitespace-nowrap uppercase">LVL {playerStats.level}</span>
+                </div>
               </div>
             )}
+
+            <div className={cn(
+              "w-16 h-16 sm:w-20 sm:h-20 p-0.5 relative group",
+              isSoloLevelingMode 
+                ? "bg-primary/30 border border-primary/50 shadow-glow-blue/20" 
+                : "rounded-xl bg-gradient-to-tr from-primary via-purple-500 to-red-500"
+            )}
+            style={isSoloLevelingMode ? { clipPath: 'polygon(15% 0%, 100% 0, 100% 85%, 85% 100%, 0 100%, 0% 15%)' } : {}}
+            >
+              <div className={cn(
+                "w-full h-full overflow-hidden border-2 border-surface/50 bg-background",
+                !isSoloLevelingMode && "rounded-xl"
+              )}
+              style={isSoloLevelingMode ? { clipPath: 'polygon(15% 0%, 100% 0, 100% 85%, 85% 100%, 0 100%, 0% 15%)' } : {}}
+              >
+                {playerStats.avatarUrl ? (
+                  <img src={playerStats.avatarUrl} alt="Profile" className="w-full h-full object-cover grayscale-[0.2] contrast-125 hover:grayscale-0 transition-all duration-300" />
+                ) : (
+                  <div className="w-full h-full bg-surfaceHighlight flex items-center justify-center text-3xl font-black text-white italic">
+                    {playerStats.level}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Outer Frame Decoration (Solo Mode) */}
+            {isSoloLevelingMode && (
+              <div className="absolute -inset-1.5 border border-primary/10 pointer-events-none -z-10 mt-3" 
+                   style={{ clipPath: 'polygon(15% 0%, 100% 0, 100% 85%, 85% 100%, 0 100%, 0% 15%)' }}
+              />
+            )}
           </div>
-          <div className="space-y-1">
-            <h3 className={cn("text-xl font-black text-white tracking-wide", !isSoloLevelingMode && "italic")}>LVL {playerStats.level}</h3>
-            <p className={cn("text-[9px] font-black uppercase tracking-[0.2em] mb-1.5 text-text-muted")}>
+          <div className="space-y-1 ml-2">
+            {!isSoloLevelingMode ? (
+              <h3 className="text-xl font-black text-white tracking-wide italic">LVL {playerStats.level}</h3>
+            ) : (
+              <div className="mb-2 space-y-0.5">
+                <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-widest whitespace-nowrap">Mayank Jha</h2>
+                <p className="text-[10px] sm:text-xs text-primary/80 uppercase tracking-[0.3em] font-black">The Creator</p>
+              </div>
+            )}
+            <p className={cn("text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] mb-1.5", isSoloLevelingMode ? "text-text-muted/80 mt-2" : "text-text-muted")}>
               {rankInfo.title} RANK
             </p>
             <div className={cn(
               "flex items-center gap-2 px-2.5 py-1 w-fit",
-              isSoloLevelingMode ? "bg-primary/10 border border-primary/20 rounded-sm" : "bg-[#1a2b4b] rounded-full border border-primary/20 shadow-glow-blue/10"
+              isSoloLevelingMode ? "bg-primary/5 border border-primary/20 rounded-sm" : "bg-[#1a2b4b] rounded-full border border-primary/20 shadow-glow-blue/10"
             )}>
               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-glow-blue" />
-              <span className="text-[8px] font-black text-primary uppercase tracking-widest">Active Player</span>
+              <span className="text-[8px] sm:text-[9px] font-black text-primary uppercase tracking-widest">Active Player</span>
             </div>
           </div>
         </div>
@@ -81,7 +120,7 @@ export function MenuProfile() {
         {isSoloLevelingMode && <SoloHeader title="System Potential Analysis" />}
         <div className={cn(
           "p-6 border relative",
-          isSoloLevelingMode ? "bg-[#0b1220] border-primary/20 rounded-sm shadow-[inset_0_0_20px_rgba(59,130,246,0.02)]" : "bg-[#1a1c21] border-white/5 rounded-[1.5rem]"
+          isSoloLevelingMode ? "bg-transparent border-white/5 rounded-none" : "bg-[#1a1c21] border-white/5 rounded-[1.5rem]"
         )}>
           {!isSoloLevelingMode && <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted mb-6 text-center">System Potential Analysis</h4>}
           <div className="pointer-events-none">
@@ -97,7 +136,7 @@ export function MenuProfile() {
           {statItems.map((item) => (
             <div key={item.label} className={cn(
               "p-4 border flex items-center gap-4 cursor-default",
-              isSoloLevelingMode ? "bg-[#0b1220] border-primary/20 rounded-sm shadow-[inset_0_0_10px_rgba(59,130,246,0.02)] hover:bg-[#121c30] transition-colors" : "bg-[#1a1c21] border-white/5 rounded-[1.2rem]"
+              isSoloLevelingMode ? "bg-transparent border-white/5 rounded-none hover:bg-white/5 transition-colors" : "bg-[#1a1c21] border-white/5 rounded-[1.2rem]"
             )}>
               <div className={cn(
                 "p-2", item.color,

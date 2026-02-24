@@ -122,14 +122,6 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
           </div>
         ))}
       </div>
-
-      {/* Footer */}
-      <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-primary/10 w-full text-center pb-2">
-         <p className="text-[7px] sm:text-[8px] font-black uppercase text-text-muted/50 tracking-[0.2em]">
-           <span className="text-primary/50 tracking-[0.455em]">StriveX System v1.0.0</span><br/>
-           Build by Mayank Jha
-         </p>
-      </div>
     </>
   );
 }

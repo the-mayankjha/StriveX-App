@@ -217,6 +217,14 @@ function MenuContent({ activeTab, setActiveTab, onClose, isSoloLevelingMode, ban
                   <div className={activeTab === 'profile' ? 'block' : 'hidden'}><MenuProfile /></div>
                   <div className={activeTab === 'quest' ? 'block' : 'hidden'}><MenuQuest onAddObjective={() => setActiveTab('bank')} /></div>
                   <div className={activeTab === 'bank' ? 'block' : 'hidden'}><MenuBank bankData={bankData} /></div>
+
+                  {/* Footer */}
+                  <div className="mt-6 pt-4 border-t border-primary/10 w-full text-center pb-2">
+                     <p className="text-[7px] sm:text-[8px] font-black uppercase text-text-muted/50 tracking-[0.2em]">
+                       <span className="text-primary/50 tracking-[0.455em]">StriveX System v1.0.0</span><br/>
+                       Build by Mayank Jha
+                     </p>
+                  </div>
                 </div>
                 
                 {/* Scanline Effect */}
