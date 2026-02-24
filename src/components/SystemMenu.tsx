@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useWorkout } from '../hooks/useWorkout';
+import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Sword, Dumbbell, AlertCircle } from 'lucide-react';
 import { cn } from '../utils/cn';
@@ -28,6 +30,7 @@ interface SystemMenuProps {
 }
 
 export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenuProps) {
+  const { isSoloLevelingMode } = useWorkout();
   const [activeTab, setActiveTab] = useState<'profile' | 'quest' | 'bank'>(initialTab);
 
   useEffect(() => {
@@ -54,46 +57,89 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-sm h-full max-h-[85vh] relative flex flex-col"
           >
-            <ElectricBorder
-              color="#3B82F6"
-              speed={1}
-              chaos={0.12}
-              borderRadius={0}
-              className="w-full h-full flex flex-col overflow-visible"
-            >
-              {/* L-Shape Corner Left Top */}
-              <div className="absolute -top-[1px] -left-[1px] w-8 h-8 z-30 pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-[3px] bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                <div className="absolute top-0 left-0 w-[3px] h-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-              </div>
-              {/* L-Shape Corner Right Bottom */}
-              <div className="absolute -bottom-[1px] -right-[1px] w-8 h-8 z-30 pointer-events-none">
-                <div className="absolute bottom-0 right-0 w-full h-[3px] bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                <div className="absolute bottom-0 right-0 w-[3px] h-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-              </div>
-
-              <div 
-                className="flex-1 flex flex-col w-full h-full min-h-0 bg-background/95 backdrop-blur-3xl relative overflow-hidden"
+            {isSoloLevelingMode ? (
+              <ElectricBorder
+                color="#3B82F6"
+                speed={1}
+                chaos={0.12}
+                borderRadius={0}
+                className="w-full h-full flex flex-col overflow-visible"
               >
+                {/* L-Shape Corner Left Top */}
+                <div className="absolute -top-[1px] -left-[1px] w-8 h-8 z-30 pointer-events-none">
+                  <div className="absolute top-0 left-0 w-full h-[3px] bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                  <div className="absolute top-0 left-0 w-[3px] h-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                </div>
+                {/* L-Shape Corner Right Bottom */}
+                <div className="absolute -bottom-[1px] -right-[1px] w-8 h-8 z-30 pointer-events-none">
+                  <div className="absolute bottom-0 right-0 w-full h-[3px] bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                  <div className="absolute bottom-0 right-0 w-[3px] h-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                </div>
+                <MenuContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} isSoloLevelingMode={isSoloLevelingMode} />
+              </ElectricBorder>
+            ) : (
+              <div className="w-full h-full flex flex-col overflow-visible bg-[#0a0f18] rounded-2xl border border-white/10 shadow-2xl relative">
+                 <MenuContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} isSoloLevelingMode={isSoloLevelingMode} />
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function MenuContent({ activeTab, setActiveTab, onClose, isSoloLevelingMode }: any) {
+  return (
+    <div 
+      className={cn(
+        "flex-1 flex flex-col w-full h-full min-h-0 relative overflow-hidden",
+        isSoloLevelingMode ? "bg-background/95 backdrop-blur-3xl" : "bg-transparent rounded-2xl"
+      )}
+    >
                 {/* Header Container */}
                 <div className="shrink-0 relative z-10">
                   {/* Top Bar */}
                   <div className="p-4 pb-3">
-                    <div className="flex items-center justify-center relative h-10 w-full hover:cursor-default">
-                      {/* Centered Title */}
-                      <div className="flex items-center gap-2 pointer-events-none">
-                        <AlertCircle className="text-primary animate-pulse" size={20} />
-                        <h2 className="text-xl font-black uppercase tracking-[0.2em] text-white text-hologram whitespace-nowrap">
+                    <div className={cn("flex items-center relative h-10 w-full hover:cursor-default", isSoloLevelingMode ? "justify-center" : "justify-between")}>
+                      {/* Title */}
+                      <div className={cn("flex items-center gap-2 pointer-events-none", !isSoloLevelingMode && "ml-2")}>
+                        {isSoloLevelingMode ? (
+                          <AlertCircle className="text-primary animate-pulse" size={20} />
+                        ) : (
+                          <div className="w-1.5 h-6 bg-primary rounded-full mr-1" />
+                        )}
+                        <h2 className={cn(
+                          "text-xl uppercase whitespace-nowrap",
+                          isSoloLevelingMode ? "font-black tracking-[0.2em] text-white text-hologram" : "font-black italic tracking-wide text-white"
+                        )}>
                           System Menu
                         </h2>
                       </div>
+
+                      {!isSoloLevelingMode && (
+                        <button 
+                          onClick={() => {
+                            const audio = new Audio('/assets/audio/close.wav');
+                            audio.volume = 0.5;
+                            audio.play().catch(err => console.log('Audio play blocked:', err));
+                            onClose();
+                          }}
+                          className="p-2 bg-white/5 rounded-full text-text-muted hover:text-white transition-colors border border-white/5"
+                        >
+                           <X size={18} />
+                        </button>
+                      )}
                     </div>
                   </div>
 
 
 
                   {/* Tab Switcher */}
-                  <div className="flex px-2 py-2 gap-1">
+                  <div className={cn(
+                    "flex px-2 py-2 mx-4 mb-2 gap-1 relative",
+                    !isSoloLevelingMode && "bg-[#1a1c21] rounded-2xl p-1.5 mx-5 mt-2 shadow-inner"
+                  )}>
                     {[
                       { id: 'profile', icon: User, label: 'Profile' },
                       { id: 'quest', icon: Sword, label: 'Quest' },
@@ -103,15 +149,18 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
                         className={cn(
-                          "flex-1 flex flex-col items-center py-2 gap-1 rounded-none transition-all relative border",
+                          "flex-1 flex flex-col items-center py-2 gap-1 transition-all relative border",
+                          isSoloLevelingMode ? "rounded-none" : "rounded-xl",
                           activeTab === tab.id 
-                            ? "text-primary border-primary/50 bg-primary/5 shadow-[inset_0_0_15px_rgba(59,130,246,0.05)]" 
+                            ? isSoloLevelingMode
+                                ? "text-primary border-primary/50 bg-primary/5 shadow-[inset_0_0_15px_rgba(59,130,246,0.05)]" 
+                                : "text-primary border-white/5 bg-[#1e293b] shadow-md"
                             : "text-text-muted hover:text-white border-transparent"
                         )}
                       >
-                        <tab.icon size={14} className={activeTab === tab.id ? "animate-pulse" : ""} />
+                        <tab.icon size={14} className={activeTab === tab.id && isSoloLevelingMode ? "animate-pulse" : ""} />
                         <span className="text-[9px] font-black uppercase tracking-widest">{tab.label}</span>
-                        {activeTab === tab.id && <CornerAccents />}
+                        {activeTab === tab.id && isSoloLevelingMode && <CornerAccents />}
                       </button>
                     ))}
                   </div>
@@ -129,14 +178,11 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
                 </div>
                 
                 {/* Scanline Effect */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
-                  <div className="w-full h-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] animate-scanline" />
-                </div>
+                {isSoloLevelingMode && (
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
+                    <div className="w-full h-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] animate-scanline" />
+                  </div>
+                )}
               </div>
-            </ElectricBorder>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
   );
 }
