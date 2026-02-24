@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, Shield, Target, Brain, Activity, Flame } from 'lucide-react';
+import { Zap, Shield, Target, Brain, Activity, Flame } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { type PlayerStats, calculateRank, getXpRequiredForLevel, RANKS } from '../utils/leveling';
 import { useWorkout } from '../hooks/useWorkout';
@@ -122,6 +122,14 @@ function ProfileContent({ stats, isSoloLevelingMode, rankInfo, xpProgress, nextL
           </div>
         ))}
       </div>
+
+      {/* Footer */}
+      <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-primary/10 w-full text-center pb-2">
+         <p className="text-[7px] sm:text-[8px] font-black uppercase text-text-muted/50 tracking-[0.2em]">
+           <span className="text-primary/50 tracking-[0.455em]">StriveX System v{__APP_VERSION__}</span><br/>
+           Build by Mayank Jha
+         </p>
+      </div>
     </>
   );
 }
@@ -192,18 +200,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                       System Stats
                     </div>
 
-                    {/* Close Button */}
-                    <button 
-                      onClick={() => {
-                        const audio = new Audio('/assets/audio/close.wav');
-                        audio.volume = 0.5;
-                        audio.play().catch(err => console.log('Audio play blocked:', err));
-                        onClose();
-                      }}
-                      className="absolute top-4 right-4 p-2 rounded-full text-text-muted hover:text-white transition-colors z-50"
-                    >
-                      <X size={24} />
-                    </button>
+
 
                     <ProfileContent 
                       stats={stats} 
@@ -227,13 +224,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col items-center">
-                  {/* Close Button */}
-                  <button 
-                    onClick={onClose}
-                    className="absolute top-0 right-0 p-2 rounded-full text-text-muted hover:text-white transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
+
 
                   <ProfileContent 
                     stats={stats} 

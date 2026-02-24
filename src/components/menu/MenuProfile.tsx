@@ -132,21 +132,21 @@ export function MenuProfile() {
       {/* SYSTEM STATS */}
       <div className="space-y-3">
         {isSoloLevelingMode && <SoloHeader title="System Stats" />}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           {statItems.map((item) => (
             <div key={item.label} className={cn(
-              "p-4 border flex items-center gap-4 cursor-default",
+              "p-2.5 sm:p-4 border flex items-center gap-2.5 sm:gap-4 cursor-default min-w-0",
               isSoloLevelingMode ? "bg-transparent border-white/5 rounded-none hover:bg-white/5 transition-colors" : "bg-[#1a1c21] border-white/5 rounded-[1.2rem]"
             )}>
               <div className={cn(
-                "p-2", item.color,
+                "p-1.5 sm:p-2 shrink-0", item.color,
                 isSoloLevelingMode ? "bg-transparent" : "rounded-lg border bg-background border-white/5"
               )}>
-                <item.icon size={26} strokeWidth={isSoloLevelingMode ? 2 : 2.5} />
+                <item.icon className="w-5 h-5 sm:w-[26px] sm:h-[26px]" strokeWidth={isSoloLevelingMode ? 2 : 2.5} />
               </div>
-              <div className={cn("flex flex-col", isSoloLevelingMode && "ml-2")}>
-                <div className="text-xl font-black text-white">{item.value}</div>
-                <div className="text-[10px] font-black uppercase text-text-muted tracking-widest">{item.label}</div>
+              <div className={cn("flex flex-col min-w-0 overflow-hidden", isSoloLevelingMode && "ml-1 sm:ml-2")}>
+                <div className="text-lg sm:text-xl font-black text-white">{item.value}</div>
+                <div className="text-[8px] sm:text-[10px] font-black uppercase text-text-muted tracking-widest truncate">{item.label}</div>
               </div>
             </div>
           ))}
