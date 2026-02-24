@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Check if a version type argument is provided
+if [ -z "$1" ]; then
+  echo "Usage: ./fkpub [patch|minor|major]"
+  exit 1
+fi
+
+VERSION_TYPE=$1
+
+# Validate the argument
+if [[ "$VERSION_TYPE" != "patch" && "$VERSION_TYPE" != "minor" && "$VERSION_TYPE" != "major" ]]; then
+  echo "Error: Invalid version type. Must be 'patch', 'minor', or 'major'."
+  exit 1
+fi
+
+echo "🚀 Bumping $VERSION_TYPE version..."
+
+# Use npm version to safely update package.json without failing on uncommitted changes
+npm version $VERSION_TYPE --no-git-tag-version
+
+echo ""
+echo "✅ Version bumped successfully!"
+echo "📦 The new version is now actively reflected in the System Menu."
+echo "➡️  Commit your changes and push:"
+echo "   git commit -am 'bump: version'"
+echo "   git push origin main"
