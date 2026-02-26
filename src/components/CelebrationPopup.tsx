@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Star } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useWorkout } from '../hooks/useWorkout';
 import ElectricBorder from './effects/ElectricBorder';
+import { Glitch, type GlitchHandle } from './effects/Glitch';
 
 
 interface CelebrationPopupProps {
@@ -15,6 +16,25 @@ interface CelebrationPopupProps {
 
 export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps) {
   const { isSoloLevelingMode } = useWorkout();
+  const glitchRef = useRef<GlitchHandle>(null);
+
+  const handleClose = () => {
+    if (isSoloLevelingMode && glitchRef.current) {
+      glitchRef.current.startGlitch();
+      setTimeout(onClose, 400);
+    } else {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    if (type && isSoloLevelingMode) {
+      const t = setTimeout(() => {
+        glitchRef.current?.startGlitch();
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [type, isSoloLevelingMode]);
 
   useEffect(() => {
     if (type) {
@@ -56,7 +76,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
             const audio = new Audio('/assets/audio/close.wav');
             audio.volume = 0.5;
             audio.play().catch(e => console.log('Audio play blocked:', e));
-            onClose();
+            handleClose();
           }}
         >
           <motion.div
@@ -77,6 +97,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
                 borderRadius={0}
                 className="w-full"
               >
+                <Glitch ref={glitchRef} playMode="manual" className="w-full">
                 <div 
                   className="bg-surface/98 relative overflow-hidden p-6 sm:p-8 space-y-6 sm:space-y-8"
                   style={{
@@ -188,7 +209,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
                     const audio = new Audio('/assets/audio/click.wav');
                     audio.volume = 0.5;
                     audio.play().catch(err => console.log('Audio play blocked:', err));
-                    setTimeout(() => onClose(), 150);
+                    setTimeout(() => handleClose(), 150);
                   }}
                   className={cn(
                     "w-full py-4 sm:py-5 font-black uppercase tracking-[0.4em] transition-all active:scale-[0.98] border-2 relative group overflow-hidden",
@@ -206,6 +227,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
               {/* Decorative Corner Borders - Solo Mode Only */}
               <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary" />
               <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary" />
+              </Glitch>
             </ElectricBorder>
           ) : (
             <div className="p-8 space-y-8">
@@ -243,7 +265,7 @@ export function CelebrationPopup({ type, data, onClose }: CelebrationPopupProps)
               )}
 
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="w-full py-5 font-black uppercase tracking-[0.4em] transition-all active:scale-[0.98] border-2 border-primary/20 text-primary hover:bg-primary/5 rounded-2xl shadow-lg shadow-primary/5 relative group overflow-hidden"
               >
                 <span className="relative z-10">Confirm</span>

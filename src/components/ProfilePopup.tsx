@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Shield, Target, Brain, Activity, Flame } from 'lucide-react';
 import { cn } from '../utils/cn';
@@ -6,6 +6,7 @@ import { type PlayerStats, calculateRank, getXpRequiredForLevel, RANKS } from '.
 import { useWorkout } from '../hooks/useWorkout';
 import { RadarChart } from './RadarChart';
 import ElectricBorder from './effects/ElectricBorder';
+import { Glitch, type GlitchHandle } from './effects/Glitch';
 
 interface ProfilePopupProps {
   stats: PlayerStats;
@@ -140,6 +141,26 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
   const rankInfo = RANKS[rank];
   const nextLevelXp = getXpRequiredForLevel(stats.level);
   const xpProgress = (stats.currentXp / nextLevelXp) * 100;
+  
+  const glitchRef = useRef<GlitchHandle>(null);
+
+  useEffect(() => {
+    if (isOpen && isSoloLevelingMode) {
+      const t = setTimeout(() => {
+        glitchRef.current?.startGlitch();
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen, isSoloLevelingMode]);
+
+  const handleClose = () => {
+    if (isSoloLevelingMode && glitchRef.current) {
+      glitchRef.current.startGlitch();
+      setTimeout(onClose, 400);
+    } else {
+      onClose();
+    }
+  };
 
   const statItems = useMemo(() => [
     { label: 'STR', value: stats.strength, icon: Zap, color: 'text-orange-500', max: 50 },
@@ -163,7 +184,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
       {isOpen && (
         <div 
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-background/90 backdrop-blur-md"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -183,6 +204,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                 borderRadius={0}
                 className="w-full overflow-visible"
               >
+                <Glitch ref={glitchRef} playMode="manual" className="w-full">
                 <div 
                   className="p-4 pt-10 sm:p-6 sm:pt-12 relative max-h-[85vh] overflow-y-auto no-scrollbar bg-background/60 backdrop-blur-2xl"
                   style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)' }}
@@ -217,6 +239,7 @@ export function ProfilePopup({ stats, isOpen, onClose }: ProfilePopupProps) {
                   <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary" />
                   <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary" />
                 </div>
+                </Glitch>
               </ElectricBorder>
             ) : (
               <div className="relative">

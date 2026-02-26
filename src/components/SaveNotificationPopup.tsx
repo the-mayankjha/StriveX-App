@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
 import ElectricBorder from './effects/ElectricBorder';
+import { Glitch, type GlitchHandle } from './effects/Glitch';
 import { useWorkout } from '../hooks/useWorkout';
 
 interface SaveNotificationPopupProps {
@@ -13,6 +14,25 @@ export function SaveNotificationPopup({ isOpen, onClose }: SaveNotificationPopup
   const { isSoloLevelingMode } = useWorkout();
 
   const hasPlayedRef = useRef(false);
+  const glitchRef = useRef<GlitchHandle>(null);
+
+  const handleClose = () => {
+    if (isSoloLevelingMode && glitchRef.current) {
+      glitchRef.current.startGlitch();
+      setTimeout(onClose, 400);
+    } else {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen && isSoloLevelingMode) {
+      const t = setTimeout(() => {
+        glitchRef.current?.startGlitch();
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen, isSoloLevelingMode]);
 
   useEffect(() => {
     if (isOpen && isSoloLevelingMode && !hasPlayedRef.current) {
@@ -28,7 +48,7 @@ export function SaveNotificationPopup({ isOpen, onClose }: SaveNotificationPopup
 
     if (isOpen) {
       const timer = setTimeout(() => {
-        onClose();
+        handleClose();
       }, 2000);
       return () => clearTimeout(timer);
     }
@@ -43,7 +63,7 @@ export function SaveNotificationPopup({ isOpen, onClose }: SaveNotificationPopup
             const audio = new Audio('/assets/audio/close.wav');
             audio.volume = 0.5;
             audio.play().catch(e => console.log('Audio play blocked:', e));
-            onClose();
+            handleClose();
           }}
         >
           <motion.div
@@ -61,6 +81,7 @@ export function SaveNotificationPopup({ isOpen, onClose }: SaveNotificationPopup
                 borderRadius={4}
                 className="w-full"
               >
+                <Glitch ref={glitchRef} playMode="manual" className="w-full">
                 <div 
                   className="bg-[#0A0C12]/95 backdrop-blur-md relative overflow-hidden py-8 px-6 text-center shadow-2xl shadow-primary/20"
                   style={{
@@ -90,6 +111,7 @@ export function SaveNotificationPopup({ isOpen, onClose }: SaveNotificationPopup
                   <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-primary/60" />
                   <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-primary/60" />
                 </div>
+                </Glitch>
               </ElectricBorder>
             ) : (
               <div className="bg-surface border border-white/10 rounded-3xl py-8 px-6 text-center shadow-2xl flex flex-col items-center gap-4">

@@ -1,5 +1,8 @@
+import { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Clock } from 'lucide-react';
+import { Glitch } from './effects/Glitch';
+import type { GlitchHandle } from './effects/Glitch';
 import ElectricBorder from './effects/ElectricBorder';
 import { cn } from '../utils/cn';
 
@@ -14,6 +17,17 @@ interface QuestInfoPopupProps {
 }
 
 export function QuestInfoPopup({ isOpen, onClose, questData, dailyProgress }: QuestInfoPopupProps) {
+  const glitchRef = useRef<GlitchHandle>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const t = setTimeout(() => {
+        glitchRef.current?.startGlitch();
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -40,8 +54,10 @@ export function QuestInfoPopup({ isOpen, onClose, questData, dailyProgress }: Qu
               borderRadius={4}
               className="w-full h-full"
             >
-              <div 
-                className="bg-[#0A0C12]/95 backdrop-blur-md relative overflow-hidden"
+              <Glitch 
+                ref={glitchRef}
+                playMode="manual"
+                className="bg-[#0A0C12]/95 backdrop-blur-md relative overflow-hidden h-full"
                 style={{
                   clipPath: 'polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%)'
                 }}
@@ -133,14 +149,21 @@ export function QuestInfoPopup({ isOpen, onClose, questData, dailyProgress }: Qu
                   const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
                   audio.volume = 0.4;
                   audio.play().catch(e => console.log('Audio play blocked:', e));
-                  onClose();
+                  
+                  // Trigger glitch effect
+                  glitchRef.current?.startGlitch();
+                  
+                  // Delay close to let the animation play
+                  setTimeout(() => {
+                    onClose();
+                  }, 400);
                 }}
                 className="w-full py-3 mt-4 border border-primary/30 text-primary text-[11px] font-black uppercase tracking-[0.5em] hover:bg-primary/10 transition-colors"
               >
                 Accept
               </button>
             </div>
-          </div>
+          </Glitch>
 
           {/* Corner Accents */}
           <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-primary/60" />
