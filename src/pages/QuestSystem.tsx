@@ -240,6 +240,7 @@ export function QuestSystem() {
       {isAddingCategory && (
         <div className="flex gap-2 animate-scale-in">
           <input 
+            id="quest-system-custom-category"
             type="text" 
             placeholder="Custom category"
             className="flex-1 bg-surface border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-primary outline-none"
@@ -414,7 +415,7 @@ export function QuestSystem() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors" size={18} />
               <input 
                 type="text"
-                id="exercise-search"
+                id="quest-system-exercise-search"
                 name="exercise-search"
                 placeholder="Search exercise..."
                 value={searchQuery}

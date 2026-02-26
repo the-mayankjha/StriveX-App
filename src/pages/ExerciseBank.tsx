@@ -18,6 +18,7 @@ export function ExerciseBank() {
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
           <input 
+            id="exercise-bank-main-search"
             type="text" 
             placeholder="Search exercises..." 
             value={filter}

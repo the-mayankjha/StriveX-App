@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useWorkout } from '../hooks/useWorkout';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Sword, Dumbbell, AlertCircle } from 'lucide-react';
 import { cn } from '../utils/cn';
 import ElectricBorder from './effects/ElectricBorder';
-import { Glitch, type GlitchHandle } from './effects/Glitch';
 
 import { MenuProfile } from './menu/MenuProfile';
 import { MenuQuest } from './menu/MenuQuest';
@@ -43,17 +42,6 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
   const [equipments, setEquipments] = useState<string[]>([]);
   const [targetMuscles, setTargetMuscles] = useState<string[]>([]);
 
-  const glitchRef = useRef<GlitchHandle>(null);
-
-  const handleClose = () => {
-    if (isSoloLevelingMode && glitchRef.current) {
-      glitchRef.current.startGlitch();
-      setTimeout(onClose, 400);
-    } else {
-      onClose();
-    }
-  };
-
   useEffect(() => {
     if (isOpen) {
       setActiveTab(initialTab);
@@ -88,7 +76,7 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
             const audio = new Audio('/assets/audio/close.wav');
             audio.volume = 0.5;
             audio.play().catch(e => console.log('Audio play blocked:', e));
-            handleClose();
+            onClose();
           }}
         >
           <motion.div
@@ -107,24 +95,6 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
                 borderRadius={0}
                 className="w-full h-full flex flex-col overflow-visible"
               >
-                <Glitch 
-                  ref={glitchRef} 
-                  playMode="manual" 
-                  className="w-full h-full flex flex-col min-h-0"
-                  options={{
-                    shake: {
-                      velocity: 15,
-                      amplitudeX: 0.5,
-                      amplitudeY: 0.1,
-                    },
-                    slice: {
-                      count: 4,
-                      velocity: 8,
-                      minHeight: 0.05,
-                      maxHeight: 0.2,
-                    }
-                  }}
-                >
                 {/* L-Shape Corner Left Top */}
                 <div className="absolute -top-[1px] -left-[1px] w-8 h-8 z-30 pointer-events-none">
                   <div className="absolute top-0 left-0 w-full h-[3px] bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
@@ -136,11 +106,10 @@ export function SystemMenu({ isOpen, onClose, initialTab = 'quest' }: SystemMenu
                   <div className="absolute bottom-0 right-0 w-[3px] h-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
                 </div>
                 <MenuContent 
-                  activeTab={activeTab} setActiveTab={setActiveTab} onClose={handleClose} 
+                  activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} 
                   isSoloLevelingMode={isSoloLevelingMode}
                   bankData={{ apiExercises, setApiExercises, isLoadingBank, setIsLoadingBank, bodyParts, equipments, targetMuscles }}
                 />
-                </Glitch>
               </ElectricBorder>
             ) : (
               <div className="w-full h-full flex flex-col overflow-visible bg-[#0a0f18] rounded-2xl border border-white/10 shadow-2xl relative">
