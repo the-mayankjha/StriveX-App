@@ -21,17 +21,19 @@ export const Glitch = forwardRef<GlitchHandle, GlitchProps>(
       createContainers: true,
       hideOverflow: false,
       timing: {
-        duration: 400,
+        duration: 350,
         iterations: 1,
       },
       shake: {
-        velocity: 16,
-        amplitudeX: 0.45,
+        velocity: 10,
+        amplitudeX: 0.15,
+        amplitudeY: 0.05,
       },
       slice: {
-        count: 7,
-        velocity: 17,
-        minHeight: 0.13,
+        count: 3, // Drastically reduced for PWA performance
+        velocity: 8,
+        minHeight: 0.05,
+        maxHeight: 0.15,
       },
       ...options,
     };
@@ -44,7 +46,11 @@ export const Glitch = forwardRef<GlitchHandle, GlitchProps>(
     }));
 
     return (
-      <div ref={glitch.ref} className={className} style={style}>
+      <div 
+        ref={glitch.ref} 
+        className={className} 
+        style={{ ...style, transform: 'translateZ(0)', willChange: 'transform' }} // Hardware acceleration hint
+      >
         {children}
       </div>
     );
